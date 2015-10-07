@@ -2015,7 +2015,8 @@
 
 body {
   margin: 5vh 10vw;
-  font-family: HelveticaNeue, arial, helvetica, clean, sans-serif; }
+  font-family: HelveticaNeue, arial, helvetica, clean, sans-serif;
+  background: url("../images/bg.png") no-repeat top right; }
 
 h1, h3 {
   color: #CCC; }
