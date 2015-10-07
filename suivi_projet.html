@@ -59,23 +59,22 @@
   <!--Le tableau pour le détaille de la tâche-->
 
   <script id="details" type="text/x-handlebars-template">
-    <h3><a href="#"
-           onclick="$('#details_task').hide();$('#list_project').show()"><i class="fa fa-angle-left"></i></a>Tâche
+    <h3><a href="#" onclick="hideTask();"><i class="fa fa-angle-left"></i></a>Tâche
       : {{object.title}}</h3>
 
     <div class="task">
       <div class="details">
         <table>
           <tr>
-            <td>État : </td>
+            <td>État :</td>
             <td>{{object.state}}</td>
           </tr>
           <tr>
-            <td>Auteur : </td>
+            <td>Auteur :</td>
             <td>{{object.author.fullName}}</td>
           </tr>
           <tr>
-            <td>Id : </td>
+            <td>Id :</td>
             <td>{{object.id}}</td>
           </tr>
         </table>
@@ -114,6 +113,11 @@
       $('#list_project').hide();
       $('#details_task').show();
       store.render("#details_task", id, $("#details").html());
+    }
+
+    function hideTask() {
+      $('#details_task').hide();
+      $('#list_project').show()
     }
   </script>
 
