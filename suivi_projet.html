@@ -12,7 +12,7 @@
           src="http://testldp.openinitiative.com/mystore.js"></script>
   <title>Test LDP Open Initiative</title>
 
-  <link rel="stylesheet" type="text/css" href="styles.css">
+  <link rel="stylesheet" type="text/css" href="scss/styles.css">
 
   <!--Le détail du premier tableau -->
 
@@ -60,23 +60,38 @@
 
   <script id="details" type="text/x-handlebars-template">
     <h3><a href="#"
-           onclick="$('#details_task').hide();$('#list_project').show()">Retour</a>
-    </h3>
+           onclick="$('#details_task').hide();$('#list_project').show()"><i class="fa fa-angle-left"></i></a>Tâche
+      : {{object.title}}</h3>
 
-    <h3>Tâche : {{object.title}}</h3>
+    <div class="task">
+      <div class="details">
+        <table>
+          <tr>
+            <td>État : </td>
+            <td>{{object.state}}</td>
+          </tr>
+          <tr>
+            <td>Auteur : </td>
+            <td>{{object.author.fullName}}</td>
+          </tr>
+          <tr>
+            <td>Id : </td>
+            <td>{{object.id}}</td>
+          </tr>
+        </table>
+        <div class="field"></div>
+        <div class="clearfix"></div>
+      </div>
+      <div class="comments">
+        <!--<textarea readonly>Description</textarea>-->
+        {{#if object.comments}}
+        {{#ldpeach object.comments "div"}}{{> comment }}{{/ldpeach}}
+        {{else}}
+        <textarea readonly>Pas de commentaire</textarea>
+        {{/if}}
+      </div>
+    </div>
 
-    <div class="field">État : {{object.state}}</div>
-    <div class="field">Auteur : {{object.author.fullName}}</div>
-    <div class="field">Id : {{object.id}}</div>
-    <div class="clearfix"></div>
-
-    <!--<textarea readonly>Description</textarea>-->
-    <div class="clearfix"></div>
-    {{#if object.comments}}
-    {{#ldpeach object.comments "div"}}{{> comment }}{{/ldpeach}}
-    {{else}}
-    <textarea readonly>Pas de commentaire</textarea>
-    {{/if}}
   </script>
 
   <!--Le javascript qui gère le rendu html-->
@@ -104,7 +119,7 @@
 
 </head>
 <body>
-<h1>Tableau des tâches du projet</h1>
+<h1><i class="fa fa-list-alt"></i>Tableau des tâches du projet</h1>
 
 <div id="list_project"></div>
 <div id="details_task"></div>
