@@ -17,7 +17,7 @@
   <!--Le détail du premier tableau -->
 
   <script id="info-template" type="text/x-handlebars-template">
-    <tr>
+    <tr class="sate{{state}}">
       <td>
         <a href="#{{[@id]}}" onclick="detailsTask('{{[@id]}}')">{{id}}</a>
       </td>
@@ -37,9 +37,7 @@
   </script>
   
   <script id="tasks-template" type="text/x-handlebars-template">
-    {{#ldpeach object.comments "div"}}
-    {{> text }}
-    {{/ldpeach}}
+    {{#if comments }}{{#ldpeach comments "div"}}{{ text }}{{/ldpeach}}{{/if}}
     <table id="tasks">
       <thead>
       <tr>
@@ -107,7 +105,7 @@
   <script>
     $(function () {
       window.store = new MyStore({
-        container: "http://pp.projects.openinitiative.com/project/ldpcontainer/154",
+        container: "http://projects.openinitiative.com/project/ldpcontainer/2269",
         context: "http://owl.openinitiative.com/oicontext.jsonld",
         template: $("#tasks-template").html(),
         partials: {
