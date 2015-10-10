@@ -24,14 +24,22 @@
       <td>{{state}}</td>
       <td class="string"><a href="#{{[@id]}}" onclick="detailsTask('{{[@id]}}')">{{title}}</a></td>
       <td class="string">{{author.fullName}}</td>
-      <td class="string">{{comments}}</td>
+      <td class="string">{{target.name}}</td>
+      <td class="string">{{comments.length}}</td>
     </tr>
   </script>
 
   <!--Le premier tableau-->
 
-  <script id="tasks-template" type="text/x-handlebars-template">
+  <script id="header-template" type="text/x-handlebars-template">
     <h3>Project : {{object.title}}, Id : {{object.id}}</h3>
+    Catégorie :{{#ldpeach object.tasks "select"}}<option onclick="renderTable('{{[@id]}}')">{{title}}</option>{{/ldpeach}}
+  </script>
+  
+  <script id="tasks-template" type="text/x-handlebars-template">
+    {{#ldpeach object.comments "div"}}
+    {{> text }}
+    {{/ldpeach}}
     <table id="tasks">
       <thead>
       <tr>
@@ -39,10 +47,11 @@
         <th>État</th>
         <th>Titre</th>
         <th>Auteur</th>
+        <th>Lot</th>
         <th>Commentaire(s)</th>
       </tr>
       </thead>
-      {{#ldpeach object.tasks "tbody"}}{{> task }}{{/ldpeach}}
+      {{#ldpeach object.descendants "tbody"}}{{> task }}{{/ldpeach}}
     </table>
   </script>
 
@@ -98,7 +107,7 @@
   <script>
     $(function () {
       window.store = new MyStore({
-        container: "http://projects.openinitiative.com/project/ldpcontainer/154",
+        container: "http://pp.projects.openinitiative.com/project/ldpcontainer/154",
         context: "http://owl.openinitiative.com/oicontext.jsonld",
         template: $("#tasks-template").html(),
         partials: {
@@ -106,26 +115,32 @@
           comment: $("#info-comment").html()
         }
       });
-      store.render("#list_project");
+      store.render("#project-header", null, $("#header-template").html());
+      renderTable();
     });
 
+    function renderTable(id) {
+        //if no id given, renders with default container
+        store.render("#list-project", id);
+    }
+
     function detailsTask(id) {
-      $('#list_project').hide();
-      $('#details_task').show();
-      store.render("#details_task", id, $("#details").html());
+      $('#list-project').hide();
+      $('#details-task').show();
+      store.render("#details-task", id, $("#details").html());
     }
 
     function hideTask() {
-      $('#details_task').hide();
-      $('#list_project').show()
+      $('#details-task').hide();
+      $('#list-project').show()
     }
   </script>
 
 </head>
 <body>
 <h1><i class="fa fa-list-alt"></i>Tableau des tâches du projet</h1>
-
-<div id="list_project"></div>
-<div id="details_task"></div>
+<div id="project-header"></div>
+<div id="list-project"></div>
+<div id="details-task"></div>
 </body>
 </html>
