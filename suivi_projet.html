@@ -10,9 +10,12 @@
           src="http://projects.openinitiative.com/js/jquery-ui-1.9.1.custom.js"></script>
   <script type="text/javascript"
           src="http://testldp.openinitiative.com/mystore.js"></script>
+  <script type="text/javascript" src="./jquery-latest.js"></script>
+  <script type="text/javascript" src="./jquery.tablesorter.js"></script>
   <title>Test LDP Open Initiative</title>
 
   <link rel="stylesheet" type="text/css" href="scss/styles.css">
+  <link rel="stylesheet" type="text/css" href="scss/sortTable.css">
 
   <!--Le détail du premier tableau -->
 
@@ -35,10 +38,10 @@
     <h3>Project : {{object.title}}, Id : {{object.id}}</h3>
     Catégorie :{{#ldpeach object.tasks "select"}}<option onclick="renderTable('{{[@id]}}')">{{title}}</option>{{/ldpeach}}
   </script>
-  
+
   <script id="tasks-template" type="text/x-handlebars-template">
     {{#if comments }}{{#ldpeach comments "div"}}{{ text }}{{/ldpeach}}{{/if}}
-    <table id="tasks">
+    <table id="tasks" class="tablesorter">
       <thead>
       <tr>
         <th>Id</th>
@@ -97,7 +100,6 @@
         {{/if}}
       </div>
     </div>
-
   </script>
 
   <!--Le javascript qui gère le rendu html-->
@@ -115,6 +117,9 @@
       });
       store.render("#project-header", null, $("#header-template").html());
       renderTable();
+      setTimeout(function() {
+          $("#tasks").tablesorter({sortList: [[0,0]]});
+      }, 4000)
     });
 
     function renderTable(id) {
@@ -130,7 +135,10 @@
 
     function hideTask() {
       $('#details-task').hide();
-      $('#list-project').show()
+      $('#list-project').show();
+      /* Show icons to sort the table - must be move to appear at the end of page loading */
+      $("#tasks").tablesorter({sortList: [[0,0]]});
+
     }
   </script>
 
