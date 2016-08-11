@@ -1,0 +1,189 @@
+<template id="task-head">
+    <style scoped>
+        *{
+            box-sizing: border-box;
+        }
+        h1, h3 {
+            color: #CCC;
+        }
+        div {
+            border-top: solid 1px #fff;
+            padding-left: 0px;
+            width:100%;
+        }
+        .id,  .etat,  .titre,  .auteur,  .lot,  .comment {
+            display:inline-block;;
+            padding: 0.5em 5px;
+            border-right: solid 1px #fff;
+        }
+        .hd{
+            background-color: #fc0;
+            color: #fff;
+        }
+        .hd input{
+            width : 100%;
+            background-color: #fd8;
+            margin-top:1px;
+            border:none;
+        }
+        .tk{
+            background-color: #eee;
+            color: #000;
+        }
+        .tk span{
+            background-color: #eee;
+        }
+        .id {
+            width:10%;
+        }
+        .etat, .lot {
+            width:5%;
+        }
+        .auteur, .comment{
+            width:15%;
+        }
+        .titre {
+            width:50%;
+        }
+
+    </style>
+    <h1>Tableau des tâches du projet</h1>
+    <h3 class="stitre"></h3>
+</template>
+
+<script type="text/javascript" src="http://happy-dev.fr/library/LDP-framework/ldpframework.js"></script>
+<script>
+    (function(){
+        var localDoc = document._currentScript.ownerDocument;
+        window.store = new MyStore({context: "http://owl.openinitiative.com/oicontext.jsonld"});
+        var affChild = function(tk, level, parent){
+                // la variable t contient les taches
+                store.get(tk).then(x=>{
+                    t=x;
+                    //creation entrée dans le tableau
+                    var cloneline = document.createElement("div");
+                    var arrow = "";
+                    cloneline.className = "tk";
+                    cloneline.setAttribute("id",t.id);
+                    cloneline.setAttribute("data-parent",parent);
+                    var target = "";
+                    var comment = "";
+                    !!t.target?target=t.target.name : target=".";
+                    !!t.comments?comments=t.comments[0] : comments=".";
+                    if(level>0){arrow =  '&nbsp;&nbsp;'.repeat(level) + '|'.repeat(level) + '->' }
+                    var myrow = '<span class="id">'+ arrow + t.id + '</span><span class="etat">'+ t.state + '</span><span class="titre">'+ t.title + '</span><span class="auteur">';
+                    myrow += t.author.fullName+'</span><span class="lot">'+target+'</span><span class="comment">'+ comments + '</span>';
+                    cloneline.innerHTML = myrow;
+                    //insertion listener pour replier enfants
+                    cloneline.addEventListener("click",function(){
+                        var tkno = this.id;
+                        var base = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelectorAll('.tk');
+                        base.forEach(function(e,i,a){
+                            if(e.getAttribute('data-parent') == tkno){
+                                //flipflop affichage
+                                e.style.display=='none'?e.style.display='initial':e.style.display='none';
+                            }
+                        });
+                    });
+                    if(!!t.tasks){
+                        for(i=0;i<t.tasks.length;i++){
+                            affChild(t.tasks[i], level+1, t.id);
+                        }
+                    }
+                    if(parent == null){
+                        document.querySelectorAll('oi-tree')[0].shadowRoot.appendChild(cloneline);
+                    } else {
+                        //startinser = point insertion après ligne du projet parent.
+                        var startinser = document.querySelectorAll('oi-tree')[0].shadowRoot.getElementById(parent);
+                        startinser.parentNode.insertBefore(cloneline, startinser.nextSibling);
+                    }
+                });
+
+        }
+		var taskListPrototype = Object.create(HTMLElement.prototype, {
+			createdCallback: {
+                value: function() {
+                    var template = localDoc.querySelector('#task-head');
+                    var clone = document.importNode(template.content, true);
+
+                    // la variable p contient le projet
+                    store.get("http://projects.openinitiative.com/project/ldpcontainer/2269").then(x=>{
+                        p=x;
+
+                        for(i=0;i<p.tasks.length;i++){
+                            affChild(p.tasks[i], 0, null);
+                        }
+
+                        //creation du sous titre
+                        var stitle = template.content.querySelector('.stitre');
+                        stitle.innerHTML = "Project : "+ p.title +", Id : " + p.id;
+                        //création entête tableau
+                        var namecol = [{n:'Id',s:'id'}, {n:'Etat',s:'etat'}, {n:'Titre',s:'titre'}, {n:'Auteur',s:'auteur'}, {n:'Lot',s:'lot'}, {n:'Commentaire(s)',s:'comment'}];
+                        var mycols = '';
+                        for (var i = 0; i < namecol.length; i++) {
+                            mycols += '<span class='+namecol[i].s+'>' + namecol[i].n + '<br><input id="'+namecol[i].s+'"></input></span>';
+                        }
+                        tableHeader = document.createElement('div');
+                        tableHeader.className = "hd";
+                        tableHeader.innerHTML = mycols;
+                        //détection relachement touche sur un champ de la barre de titre
+                        tableHeader.addEventListener("keyup",function(){
+                            // initialise affichage à visible
+                            var base = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelectorAll('.tk');
+                            base.forEach(function(e,i,a){
+                                e.style.display='initial';
+                            });
+                            // chxxx contient la chaine à chercher dans la colonne xxx
+                            var chid = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelector('#id').value;
+                            var chetat = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelector('#etat').value;
+                            var chtitre = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelector('#titre').value.toUpperCase();
+                            var chauteur = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelector('#auteur').value.toUpperCase();
+                            var chlot = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelector('#lot').value.toUpperCase();
+                            var chcomment = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelector('#comment').value.toUpperCase();
+                            // basexxx contient toutes les <span class="xxx">
+                            var baseid = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelectorAll('.tk .id');
+                            baseid.forEach(function(e,i,a){
+                                if(e.innerHTML.indexOf(chid)==-1){e.parentNode.style.display='none';}
+                            });
+                            var baseetat = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelectorAll('.tk .etat');
+                            baseetat.forEach(function(e,i,a){
+                                if(e.innerHTML.indexOf(chetat)==-1){e.parentNode.style.display='none';}
+                            });
+                            var basetitre = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelectorAll('.tk .titre');
+                            basetitre.forEach(function(e,i,a){
+                                if(e.innerHTML.toUpperCase().indexOf(chtitre)==-1){e.parentNode.style.display='none';}
+                            });
+                            var baseauteur = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelectorAll('.tk .auteur');
+                            baseauteur.forEach(function(e,i,a){
+                                if(e.innerHTML.toUpperCase().indexOf(chauteur)==-1){e.parentNode.style.display='none';}
+                            });
+                            var baselot = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelectorAll('.tk .lot');
+                            baselot.forEach(function(e,i,a){
+                                if(e.innerHTML.toUpperCase().indexOf(chlot)==-1){e.parentNode.style.display='none';}
+                            });
+                            var basecomment = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelectorAll('.tk .comment');
+                            basecomment.forEach(function(e,i,a){
+                                if(e.innerHTML.toUpperCase().indexOf(chcomment)==-1){e.parentNode.style.display='none';}
+                            });
+                        });
+
+                        //mise à jour du shadow DOM
+                        clone.appendChild(stitle);
+                        clone.appendChild(tableHeader);
+                        // clone.appendChild(cloneline);
+                        this.createShadowRoot().appendChild(clone);
+                    });
+
+                    //console.dir(this.dataset);
+                }
+            }
+		});
+
+
+
+        document.registerElement('oi-tree',{prototype: taskListPrototype});
+
+
+    })();
+
+</script>
