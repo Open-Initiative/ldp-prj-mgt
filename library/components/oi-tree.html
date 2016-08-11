@@ -29,6 +29,7 @@
         .tk{
             background-color: #eee;
             color: #000;
+            cursor : pointer;
         }
         .tk span{
             background-color: #eee;
@@ -79,9 +80,16 @@
                         var tkno = this.id;
                         var base = document.querySelectorAll('oi-tree')[0].shadowRoot.querySelectorAll('.tk');
                         base.forEach(function(e,i,a){
+                            var tkparent = document.querySelectorAll('oi-tree')[0].shadowRoot.getElementById(e.getAttribute('data-parent'));
+                            // flipflop affiche si parent est cliqué
                             if(e.getAttribute('data-parent') == tkno){
-                                //flipflop affichage
                                 e.style.display=='none'?e.style.display='initial':e.style.display='none';
+                            }
+                            // le petit enfant copy la visibilité de l'enfant si parent est cliqué
+                            if(tkparent!=null){
+                                if(tkparent.getAttribute('data-parent') == tkno){
+                                    e.style.display = tkparent.style.display;
+                                }
                             }
                         });
                     });
