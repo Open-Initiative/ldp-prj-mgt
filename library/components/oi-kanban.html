@@ -1,99 +1,128 @@
 <template id="task-head">
-    <style scoped>
-        *{
-            box-sizing: border-box;
-        }
-        h1, h3 {
-            color: #CCC;
-        }
-        div {
-            border-top: solid 1px #fff;
-            padding-left: 0px;
-        }
-        .liste {
-            display:inline-block;
-            width:20%;
-            padding: 0.5em 5px;
-            border: solid 1px #fff;
-            background-color: #fc0;
-            color: #fff;
-            vertical-align: text-top;
-        }
-        .task {
-            background-color: #fff;
-            color:#000;
-        }
-        h4{
-            margin : 0 2px;
-        }
-    </style>
+<style>
+    *{
+        box-sizing: border-box;
+    }
+    h1, h3 {
+        color: #CCC;
+    }
+    div {
+        border-top: solid 1px #fff;
+        padding-left: 0px;
+    }
+    .liste {
+        display:inline-block;
+        width:19%;
+        padding: 0.5em 5px;
+        border: solid 1px #fff;
+        background-color: #fc0;
+        color: #fff;
+        vertical-align: text-top;
+    }
+    ::content oi-task {
+        display: inline-block;
+        background-color: #fff;
+        color:#000;
+        list-style-type: none;
+        width: 100%;
+        margin-top: 3px;
+    }
+    ::content oi-task span {
+        display: inline-block;
+        background-color: #fff;
+        color:#000;
+        list-style-type: none;
+    }
+    ::content oi-task .title {
+        font-weight: bold;
+    }
+    oi-task {
+        display: inline-block;
+        background-color: #fff;
+        color:#000;
+        list-style-type: none;
+        width: 100%;
+        margin-top: 3px;
+    }
+    h4{
+        margin : 0 2px;
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+    ul{
+        padding-left: 0px;
+        float: left;
+    }
+
+</style>
     <h1>Tableau des tâches du projet</h1>
     <h3 class="stitre"></h3>
+    <div id="kanban"></div>
+    <table>
+        <tr id='legend'>
+        </tr>
+    </table>
 </template>
 <script type="text/javascript" src="http://happy-dev.fr/library/LDP-framework/ldpframework.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 <script>
     (function(){
         var localDoc = document._currentScript.ownerDocument;
+        var cardColor = ["lightPink", "BlanchedAlmond", "InfoBackground", "lavender", "AquaMarine", "LightGray"];
         window.store = new MyStore({context: "http://owl.openinitiative.com/oicontext.jsonld"});
-		var taskListPrototype = Object.create(HTMLElement.prototype, {
+
+        var taskListPrototype = Object.create(HTMLElement.prototype, {
 			createdCallback: {
+
                 value: function() {
-                    var template = localDoc.querySelector('#task-head');
-                    var clone = document.importNode(template.content, true);
-                    var liste =[];//liste des rubriques
-                    var iliste = 0;//index de liste
-                    var col = [];//colonnes html exportées dans le shadowDOM
-                    var rub;//rubrique en cours
+                    var clone = document.importNode(localDoc.querySelector('#task-head').content, true);
+                    var content = "";
+                    ['Proposé','Démarré','Livré','Validé'].forEach((listName,i) => content +=
+                    `<div class="liste">
+                        <h4 class="nameLot">${listName}</h4>
+                        <div>
+                            <content select="[data-list='${i}']"></content>
+                        </div>
+                    </div>`);
+                    clone.querySelector('#kanban').innerHTML = content;
+                    this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
+                    $(this).sortable({stop: function(event, ui){
+                        var columnPositions = Array.prototype.map.call(this.shadowRoot.querySelectorAll(".liste"), list => list.offsetLeft);
+                        var target = columnPositions.filter(x=>event.clientX>x).length - 1;
+                        $(event.toElement).closest('oi-task')[0].dataset.list = target;
 
-                    // la variable p contient le projet
-                    store.get("http://projects.openinitiative.com/project/ldpcontainer/2269").then(x=>{
-                        p=x;
-                        for(i=0;i<p.descendants.length;i++){
-                            // la variable t contient les taches
-                            store.get(p.descendants[i]).then(x=>{
-                                t=x;
-                                //si pas de lot création d'une liste A classer
-                                !t.target?rub="A classer":rub=t.target.name;
-                                //recherche le lot dans la variable liste
-                                if(!liste.find(e => e == rub)){
-                                    col[iliste]=document.createElement("div");
-                                    col[iliste].className = "liste";
-                                    col[iliste].innerHTML = "<h4>"+ rub +"</h4>";
-                                    clone.appendChild(col[iliste]);
-                                    this.shadowRoot.appendChild(clone);
-                                    liste.push(rub);
-                                };
-                                if(!t.target){
-                                    iliste=liste.indexOf("A classer");
-                                }else{
-                                    iliste=liste.indexOf(t.target.name);
-                                }
-                                var task = document.createElement("div");
-                                task.className = "task";
-                                task.innerHTML = "<h4>"+ t.id +"</h4>";
-                                task.innerHTML += "<h4>"+ t.title +"</h4>";
-                                task.innerHTML += "<p>Etat : "+ t.state +" Auteur : <a href=\""+t.author['@id']+"\" target=\"_blank\">"+ t.author.fullName +"</a></p>";
-                                this.shadowRoot.querySelectorAll('.liste')[iliste].appendChild(task);
+                    }});
+
+                    // this.appendChild(clone);
+
+                    // console.log(this.attributes['data-scr'].value);
+                    store.get(this.attributes['data-scr'].value).then(project=>{
+                        project.descendants.forEach(function(task, index){
+                            store.get(task).then(task=>{
+                                var newTask =  document.createElement('oi-task');
+                                // console.dir(newTask);
+                                // console.log(task['@id']);
+                                newTask.setAttribute('data-scr', task['@id']);
+
                             });
-                        }
-                        //creation du sous titre
-                        var stitle = template.content.querySelector('.stitre');
-                        stitle.innerHTML = "Project : "+ p.title +", Id : " + p.id;
-
-                        //mise à jour du shadow DOM
-                        clone.appendChild(stitle);
-                        this.createShadowRoot().appendChild(clone);
+                        }.bind(this));
                     });
-
-                    //console.dir(this.dataset);
                 }
             }
 		});
 
+        taskListPrototype.appendField = function(taskElt, name, value) {
+                var span = document.createElement('span');
+                span.className = name;
+                span.innerHTML = value;
+                taskElt.appendChild(span);
+            };
 
         document.registerElement('oi-kanban',{prototype: taskListPrototype});
-
-
     })();
-
 </script>

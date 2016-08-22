@@ -59,8 +59,7 @@
         window.store = new MyStore({context: "http://owl.openinitiative.com/oicontext.jsonld"});
         var affChild = function(tk, level, parent){
                 // la variable t contient les taches
-                store.get(tk).then(x=>{
-                    t=x;
+                store.get(tk).then(t=>{
                     //creation entrée dans le tableau
                     var cloneline = document.createElement("div");
                     var arrow = "";

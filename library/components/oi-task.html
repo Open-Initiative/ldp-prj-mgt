@@ -1,0 +1,52 @@
+<template id="task-head">
+<style>
+</style>
+</template>
+<script type="text/javascript" src="http://happy-dev.fr/library/LDP-framework/ldpframework.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+<script src="/library/jquery.polymer-1.0.js"></script>
+<script src="/library/jquery-ui.polymer-1.0.js"></script>
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+<script>
+    (function(){
+        var localDoc = document._currentScript.ownerDocument;
+        window.store = new MyStore({context: "http://owl.openinitiative.com/oicontext.jsonld"});
+
+        var taskPrototype = Object.create(HTMLElement.prototype, {
+			attributeChangedCallback: {
+
+                value: function() {
+                    var template = localDoc.querySelector('#task-head');
+                    var clone = document.importNode(template.content, true);
+                    var essai = document.importNode
+                    //test if data is available
+                    if(this.dataset.scr){
+                        console.log(' Résultat de console.dir(this.dataset.scr);');
+                        console.dir(this.dataset.scr);
+                        store.get(this.dataset.scr).then(task=>{
+                            var taskElt = document.createElement("oi-task");
+                            taskElt.dataset.list = task.state;
+                            taskElt.dataset.src = task['@id'];
+                            this.appendField(taskElt, 'title', task.title);
+                            this.appendField(taskElt, 'target', task.target?task.target.name:"");
+                            this.appendField(taskElt, 'author', task.author.fullName);
+                            this.ownerDocument.querySelector('oi-kanban').appendChild(taskElt);
+                        });
+
+                    }
+                }
+            }
+		});
+
+        taskPrototype.appendField = function(taskElt, name, value) {
+                var span = document.createElement('span');
+                span.className = name;
+                span.innerHTML = value;
+                taskElt.appendChild(span);
+            };
+
+        document.registerElement('oi-task',{prototype: taskPrototype});
+    })();
+</script>
