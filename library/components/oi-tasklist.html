@@ -60,11 +60,10 @@
                     var clone = document.importNode(template.content, true);
 
                     // la variable p contient le projet
-                    store.get("http://projects.openinitiative.com/project/ldpcontainer/2269").then(x=>{
-                        p=x;
-                        for(i=0;i<p.descendants.length;i++){
+                    store.get(this.attributes['data-scr'].value).then(project=>{
+                        for(i=0;i<project.descendants.length;i++){
                             // la variable t contient les taches
-                            store.get(p.descendants[i]).then(x=>{
+                            store.get(project.descendants[i]).then(x=>{
                                 t=x;
                                 //creation entrée dans le tableau
                                 var cloneline = document.createElement("div");
@@ -81,7 +80,7 @@
                         }
                         //creation du sous titre
                         var stitle = template.content.querySelector('.stitre');
-                        stitle.innerHTML = "Project : "+ p.title +", Id : " + p.id;
+                        stitle.innerHTML = "Project : "+ project.title +", Id : " + project.id;
                         //création entête tableau
                         var namecol = [{n:'Id',s:'id'}, {n:'Etat',s:'etat'}, {n:'Titre',s:'titre'}, {n:'Auteur',s:'auteur'}, {n:'Lot',s:'lot'}, {n:'Commentaire(s)',s:'comment'}];
                         var mycols = '';

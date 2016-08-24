@@ -71,7 +71,7 @@
         </tr>
     </table>
 </template>
-<script type="text/javascript" src="http://happy-dev.fr/library/LDP-framework/ldpframework.js"></script>
+<script type="text/javascript" src="http://cdn.happy-dev.fr/LDP-framework/ldpframework.js"></script>
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
@@ -80,7 +80,7 @@
     (function(){
         var localDoc = document._currentScript.ownerDocument;
         var cardColor = ["lightPink", "BlanchedAlmond", "InfoBackground", "lavender", "AquaMarine", "LightGray"];
-        window.store = new MyStore({context: "http://owl.openinitiative.com/oicontext.jsonld"});
+        var store = new MyStore({context: "http://owl.openinitiative.com/oicontext.jsonld", defaultSerializer: 'application/ld+json'});
 
         var taskListPrototype = Object.create(HTMLElement.prototype, {
 			createdCallback: {
@@ -104,8 +104,10 @@
                         $(event.toElement).closest('oi-task')[0].dataset.list = target;
                         // $(event.toElement.parentNode).state
                         store.get(event.toElement.parentNode.dataset.src).then(project=>{
-                            project.state=toString(target);
+                            project.state="1";//"" + target;
 //                            console.dir(event.toElement.parentNode.dataset.src);
+                                console.log(typeof project.state);
+                                console.log(project);
                             store.save(project);
                         });
                     }});
@@ -115,8 +117,8 @@
                     // console.log(this.attributes['data-scr'].value);
                     store.get(this.attributes['data-scr'].value).then(project=>{
 //                        console.log(project);
-//                        project["ldp:contains"].forEach(function(task, index){   //##### pour fonctionner sur site de préprod
-                        project.descendants.forEach(function(task, index){ //##### pour fonctionner sur le site de prod
+                        project["ldp:contains"].forEach(function(task, index){   //##### pour fonctionner sur site de préprod
+//                        project.descendants.forEach(function(task, index){ //##### pour fonctionner sur le site de prod
                             store.get(task).then(task=>{
                                 var newTask =  document.createElement('oi-task');
 //                                console.dir(task);
