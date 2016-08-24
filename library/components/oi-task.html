@@ -20,15 +20,16 @@
                 value: function() {
                     var template = localDoc.querySelector('#task-head');
                     var clone = document.importNode(template.content, true);
-                    var essai = document.importNode
                     //test if data is available
                     if(this.dataset.scr){
-                        console.log(' Résultat de console.dir(this.dataset.scr);');
+                        // console.log(' Résultat de console.dir(this.dataset.scr);');
                         console.dir(this.dataset.scr);
                         store.get(this.dataset.scr).then(task=>{
                             var taskElt = document.createElement("oi-task");
+                            console.log(task);
                             taskElt.dataset.list = task.state;
                             taskElt.dataset.src = task['@id'];
+                            taskElt.dataset.content = task;
                             this.appendField(taskElt, 'title', task.title);
                             this.appendField(taskElt, 'target', task.target?task.target.name:"");
                             this.appendField(taskElt, 'author', task.author.fullName);

@@ -24,7 +24,6 @@
         background-color: #fff;
         color:#000;
         list-style-type: none;
-        width: 100%;
         margin-top: 3px;
     }
     ::content oi-task span {
@@ -32,6 +31,7 @@
         background-color: #fff;
         color:#000;
         list-style-type: none;
+        width: 100%;
     }
     ::content oi-task .title {
         font-weight: bold;
@@ -41,8 +41,14 @@
         background-color: #fff;
         color:#000;
         list-style-type: none;
-        width: 100%;
         margin-top: 3px;
+    }
+    oi-task span {
+        display: inline-block;
+        background-color: #fff;
+        color:#000;
+        list-style-type: none;
+        width: 100%;
     }
     h4{
         margin : 0 2px;
@@ -91,21 +97,29 @@
                     </div>`);
                     clone.querySelector('#kanban').innerHTML = content;
                     this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
+                    //this is the whole kanban
                     $(this).sortable({stop: function(event, ui){
                         var columnPositions = Array.prototype.map.call(this.shadowRoot.querySelectorAll(".liste"), list => list.offsetLeft);
                         var target = columnPositions.filter(x=>event.clientX>x).length - 1;
                         $(event.toElement).closest('oi-task')[0].dataset.list = target;
-
+                        // $(event.toElement.parentNode).state
+                        store.get(event.toElement.parentNode.dataset.src).then(project=>{
+                            project.state=toString(target);
+//                            console.dir(event.toElement.parentNode.dataset.src);
+                            store.save(project);
+                        });
                     }});
 
                     // this.appendChild(clone);
 
                     // console.log(this.attributes['data-scr'].value);
                     store.get(this.attributes['data-scr'].value).then(project=>{
-                        project.descendants.forEach(function(task, index){
+//                        console.log(project);
+//                        project["ldp:contains"].forEach(function(task, index){   //##### pour fonctionner sur site de préprod
+                        project.descendants.forEach(function(task, index){ //##### pour fonctionner sur le site de prod
                             store.get(task).then(task=>{
                                 var newTask =  document.createElement('oi-task');
-                                // console.dir(newTask);
+//                                console.dir(task);
                                 // console.log(task['@id']);
                                 newTask.setAttribute('data-scr', task['@id']);
 
@@ -115,13 +129,6 @@
                 }
             }
 		});
-
-        taskListPrototype.appendField = function(taskElt, name, value) {
-                var span = document.createElement('span');
-                span.className = name;
-                span.innerHTML = value;
-                taskElt.appendChild(span);
-            };
 
         document.registerElement('oi-kanban',{prototype: taskListPrototype});
     })();
