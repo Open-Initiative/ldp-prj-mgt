@@ -66,10 +66,6 @@
     <h1>Tableau des tâches du projet</h1>
     <h3 class="stitre"></h3>
     <div id="kanban"></div>
-    <table>
-        <tr id='legend'>
-        </tr>
-    </table>
 </template>
 <script type="text/javascript" src="http://cdn.happy-dev.fr/LDP-framework/ldpframework.js"></script>
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
@@ -88,7 +84,7 @@
                 value: function() {
                     var clone = document.importNode(localDoc.querySelector('#task-head').content, true);
                     var content = "";
-                    ['Proposé','Démarré','Livré','Validé'].forEach((listName,i) => content +=
+                    ['Proposé','Accepté','Démarré','Livré','Validé'].forEach((listName,i) => content +=
                     `<div class="liste">
                         <h4 class="nameLot">${listName}</h4>
                         <div>
@@ -104,7 +100,7 @@
                         $(event.toElement).closest('oi-task')[0].dataset.list = target;
                         // $(event.toElement.parentNode).state
                         store.get(event.toElement.parentNode.dataset.src).then(project=>{
-                            project.state="1";//"" + target;
+                            project.state="" + target;
 //                            console.dir(event.toElement.parentNode.dataset.src);
                                 console.log(typeof project.state);
                                 console.log(project);
@@ -121,12 +117,13 @@
 //                        project.descendants.forEach(function(task, index){ //##### pour fonctionner sur le site de prod
                             store.get(task).then(task=>{
                                 var newTask =  document.createElement('oi-task');
-//                                console.dir(task);
+                                console.dir(newTask);
                                 // console.log(task['@id']);
+                                newTask.setAttribute('data-parent', 'oi-kanban');
+                                //data-scr must be the last data attribute to be send.
                                 newTask.setAttribute('data-scr', task['@id']);
-
                             });
-                        }.bind(this));
+                        });
                     });
                 }
             }

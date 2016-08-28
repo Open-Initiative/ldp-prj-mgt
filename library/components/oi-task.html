@@ -18,22 +18,21 @@
 			attributeChangedCallback: {
 
                 value: function() {
-                    var template = localDoc.querySelector('#task-head');
-                    var clone = document.importNode(template.content, true);
                     //test if data is available
                     if(this.dataset.scr){
-                        // console.log(' Résultat de console.dir(this.dataset.scr);');
-                        console.dir(this.dataset.scr);
+                        var template = localDoc.querySelector('#task-head');
+                        var clone = document.importNode(template.content, true);
+                        // console.dir(this.dataset.scr);
+                        console.dir(this);
                         store.get(this.dataset.scr).then(task=>{
                             var taskElt = document.createElement("oi-task");
-                            console.log(task);
                             taskElt.dataset.list = task.state;
                             taskElt.dataset.src = task['@id'];
                             taskElt.dataset.content = task;
                             this.appendField(taskElt, 'title', task.title);
                             this.appendField(taskElt, 'target', task.target?task.target.name:"");
                             this.appendField(taskElt, 'author', task.author.fullName);
-                            this.ownerDocument.querySelector('oi-kanban').appendChild(taskElt);
+                            this.ownerDocument.querySelector(this.dataset.parent).appendChild(taskElt);
                         });
 
                     }
