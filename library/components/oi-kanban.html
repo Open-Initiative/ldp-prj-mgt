@@ -65,6 +65,19 @@
 </style>
     <h1>Tableau des tâches du projet</h1>
     <h3 class="stitre"></h3>
+    <select name="target" class="targetFilter">
+        <option value="all">Tous</option>
+        <option value="lot 1">Lot 1</option>
+        <option value="lot 2">Lot 2</option>
+        <option value="lot 3">Lot 3</option>
+        <option value="lot 4">Lot 4</option>
+    </select>
+    <form class="form">
+        <input type="text" name="title" value="" placeholder="titre" class="titleForm">
+        <input type="text" name="state" value="" placeholder="Etat (0 à 4)" class="stateForm">
+        <input type="text" name="target" value="" placeholder="lot" class="targetForm">
+        <input type="submit" value="Valider" class="submitForm">
+    </form>
     <div id="kanban"></div>
 </template>
 <script type="text/javascript" src="http://cdn.happy-dev.fr/LDP-framework/ldpframework.js"></script>
@@ -83,6 +96,7 @@
 
                 value: function() {
                     var clone = document.importNode(localDoc.querySelector('#task-head').content, true);
+
                     var content = "";
                     ['Proposé','Accepté','Démarré','Livré','Validé'].forEach((listName,i) => content +=
                     `<div class="liste">
@@ -107,24 +121,38 @@
                             store.save(project);
                         });
                     }});
-
-                    // this.appendChild(clone);
-
                     // console.log(this.attributes['data-scr'].value);
-                    store.get(this.attributes['data-scr'].value).then(project=>{
+                    console.log(this.dataset.src);
+                    store.container = this.dataset.src;
+                    store.get(this.dataset.src).then(project=>{
+                        //creation of sub-title
+                        this.shadowRoot.querySelector('.stitre').innerHTML = `Project : ${project.title} , Id : ${project.id}`;
 //                        console.log(project);
-                        project["ldp:contains"].forEach(function(task, index){   //##### pour fonctionner sur site de préprod
-//                        project.descendants.forEach(function(task, index){ //##### pour fonctionner sur le site de prod
-                            store.get(task).then(task=>{
-                                var newTask =  document.createElement('oi-task');
-                                console.dir(newTask);
-                                // console.log(task['@id']);
-                                newTask.setAttribute('data-parent', 'oi-kanban');
-                                //data-scr must be the last data attribute to be send.
-                                newTask.setAttribute('data-scr', task['@id']);
-                            });
-                        });
+//                        project["ldp:contains"].forEach(function(task, index){   //##### pour fonctionner sur site de préprod
+                        project.descendants.forEach(function(task, index){ //##### pour fonctionner sur le site de prod
+                            var newTask =  document.createElement('oi-task');
+                            console.dir(newTask);
+                            // console.log(task['@id']);
+                            //data-scr must be the last data attribute to be send.
+                            newTask.dataset.src=task['@id'];
+                            this.appendChild(newTask);
+                        }.bind(this));
                     });
+                    //controle change of lot filter
+                    this.shadowRoot.querySelector('.targetFilter').addEventListener("mouseup",function(){
+                        console.log(this);
+                        this.querySelectorAll('oi-task').forEach(function(elt,i){
+                            console.log(elt);
+                            elt.style.display='inline-table';
+                        });
+                    }.bind(this));
+                    this.shadowRoot.querySelector('.submitForm').addEventListener("click",function(){
+                        var project = {"author": {"@id": "http://pp.projects.openinitiative.com/user/ldpcontainer/601"}, "@context": "http://owl.openinitiative.com/oicontext.jsonld"}
+                        project.title = this.shadowRoot.querySelector('.titleForm').value;
+                        project.state = this.shadowRoot.querySelector('.stateForm').value;
+                        project.target = this.shadowRoot.querySelector('.targetForm').value;
+                        store.save(project);
+                    }.bind(this));
                 }
             }
 		});

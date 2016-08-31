@@ -1,7 +1,3 @@
-<template id="task-head">
-<style>
-</style>
-</template>
 <script type="text/javascript" src="http://cdn.happy-dev.fr/LDP-framework/ldpframework.js"></script>
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -17,22 +13,18 @@
         var taskPrototype = Object.create(HTMLElement.prototype, {
 			attributeChangedCallback: {
 
-                value: function() {
+                value: function(attribute) {
                     //test if data is available
-                    if(this.dataset.scr){
-                        var template = localDoc.querySelector('#task-head');
-                        var clone = document.importNode(template.content, true);
+                    if(attribute== 'data-src' && this.dataset.src){
                         // console.dir(this.dataset.scr);
                         console.dir(this);
-                        store.get(this.dataset.scr).then(task=>{
-                            var taskElt = document.createElement("oi-task");
-                            taskElt.dataset.list = task.state;
-                            taskElt.dataset.src = task['@id'];
-                            taskElt.dataset.content = task;
-                            this.appendField(taskElt, 'title', task.title);
-                            this.appendField(taskElt, 'target', task.target?task.target.name:"");
-                            this.appendField(taskElt, 'author', task.author.fullName);
-                            this.ownerDocument.querySelector(this.dataset.parent).appendChild(taskElt);
+                        store.get(this.dataset.src).then(task=>{
+                            this.dataset.list = task.state;
+                            //remove all child elements before add
+                            while(this.firstChild) this.removeChild(this.firstChild);
+                            this.appendField('title', task.title);
+                            this.appendField('target', task.target?task.target.name:"");
+                            this.appendField('author', task.author.fullName);
                         });
 
                     }
@@ -40,11 +32,11 @@
             }
 		});
 
-        taskPrototype.appendField = function(taskElt, name, value) {
+        taskPrototype.appendField = function(name, value) {
                 var span = document.createElement('span');
                 span.className = name;
                 span.innerHTML = value;
-                taskElt.appendChild(span);
+                this.appendChild(span);
             };
 
         document.registerElement('oi-task',{prototype: taskPrototype});

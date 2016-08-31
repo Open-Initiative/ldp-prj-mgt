@@ -87,7 +87,7 @@
                                 //data-scr must be the last data attribute to be send.
                                 newTask.setAttribute('data-scr', task['@id']);
                                 this.shadowRoot.appendChild(container);
-                                console.log(task['state']);
+                                // console.log(task['state']);
                                 this.ownerDocument.querySelector("oi-tasklist").appendChild(newTask);
                             });
                         }.bind(this));
@@ -105,8 +105,8 @@
                         //détection relachement touche sur un champ de la barre de titre
                         tableHeader.addEventListener("keyup",function(){
                             // initialise affichage à visible
-                            this.shadowRoot.querySelectorAll('.tk').forEach(function(elt,i){
-                                elt.style.display='inline-table';
+                            this.shadowRoot.querySelectorAll('oi-task').forEach(function(elt,i){
+                                //elt.style.display='inline-table';
                             });
                             // chxxx contient the string to search in the xxx column
                             var chid = this.shadowRoot.querySelector('#id').value;
