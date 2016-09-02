@@ -12,7 +12,7 @@
     }
     .liste {
         display:inline-block;
-        width:19%;
+        width:12%;
         padding: 0.5em 5px;
         border: solid 1px #fff;
         background-color: #fc0;
@@ -88,75 +88,98 @@
 <script>
     (function(){
         var localDoc = document._currentScript.ownerDocument;
-        var cardColor = ["lightPink", "BlanchedAlmond", "InfoBackground", "lavender", "AquaMarine", "LightGray"];
         var store = new MyStore({context: "http://owl.openinitiative.com/oicontext.jsonld", defaultSerializer: 'application/ld+json'});
 
         var taskListPrototype = Object.create(HTMLElement.prototype, {
 			createdCallback: {
 
                 value: function() {
-                    var clone = document.importNode(localDoc.querySelector('#task-head').content, true);
+                    this.setColumns();
+                    if(this.dataset.src){this.setContainer(this.dataset.src)};
+                }
+            },
+            attributeChangedCallback: {
+                value: function(attrName, oldVal, newVal) {
+                    if(attrName == 'data-src'){
+                        this.setContainer(newVal);
+                    }
 
-                    var content = "";
-                    ['Proposé','Accepté','Démarré','Livré','Validé'].forEach((listName,i) => content +=
-                    `<div class="liste">
-                        <h4 class="nameLot">${listName}</h4>
-                        <div>
-                            <content select="[data-list='${i}']"></content>
-                        </div>
-                    </div>`);
-                    clone.querySelector('#kanban').innerHTML = content;
-                    this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
-                    //this is the whole kanban
-                    $(this).sortable({stop: function(event, ui){
-                        var columnPositions = Array.prototype.map.call(this.shadowRoot.querySelectorAll(".liste"), list => list.offsetLeft);
-                        var target = columnPositions.filter(x=>event.clientX>x).length - 1;
-                        $(event.toElement).closest('oi-task')[0].dataset.list = target;
-                        // $(event.toElement.parentNode).state
-                        store.get(event.toElement.parentNode.dataset.src).then(project=>{
-                            project.state="" + target;
-//                            console.dir(event.toElement.parentNode.dataset.src);
-                                console.log(typeof project.state);
-                                console.log(project);
-                            store.save(project);
-                        });
-                    }});
-                    // console.log(this.attributes['data-scr'].value);
-                    console.log(this.dataset.src);
-                    store.container = this.dataset.src;
-                    store.get(this.dataset.src).then(project=>{
-                        //creation of sub-title
-                        this.shadowRoot.querySelector('.stitre').innerHTML = `Project : ${project.title} , Id : ${project.id}`;
-//                        console.log(project);
-//                        project["ldp:contains"].forEach(function(task, index){   //##### pour fonctionner sur site de préprod
-                        project.descendants.forEach(function(task, index){ //##### pour fonctionner sur le site de prod
-                            var newTask =  document.createElement('oi-task');
-                            console.dir(newTask);
-                            // console.log(task['@id']);
-                            //data-scr must be the last data attribute to be send.
-                            newTask.dataset.src=task['@id'];
-                            this.appendChild(newTask);
-                        }.bind(this));
-                    });
-                    //controle change of lot filter
-                    this.shadowRoot.querySelector('.targetFilter').addEventListener("mouseup",function(){
-                        console.log(this);
-                        this.querySelectorAll('oi-task').forEach(function(elt,i){
-                            console.log(elt);
-                            elt.style.display='inline-table';
-                        });
-                    }.bind(this));
-                    this.shadowRoot.querySelector('.submitForm').addEventListener("click",function(){
-                        var project = {"author": {"@id": "http://pp.projects.openinitiative.com/user/ldpcontainer/601"}, "@context": "http://owl.openinitiative.com/oicontext.jsonld"}
-                        project.title = this.shadowRoot.querySelector('.titleForm').value;
-                        project.state = this.shadowRoot.querySelector('.stateForm').value;
-                        project.target = this.shadowRoot.querySelector('.targetForm').value;
-                        store.save(project);
-                    }.bind(this));
                 }
             }
 		});
 
+        //create the background of kanban
+        taskListPrototype.setColumns = function() {
+            var clone = document.importNode(localDoc.querySelector('#task-head').content, true);
+
+            var content = "";
+            var colElt = [{'name': 'lot 1', 'target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/45"}},
+                        {'name': 'Proposé','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/46"}, 'state':'0'},
+                        {'name': 'Accepté','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/46"}, 'state':'1'},
+                        {'name': 'Démarré','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/46"}, 'state':'2'},
+                        {'name': 'Livré','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/46"}, 'state':'3'},
+                        {'name': 'Validé','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/46"}, 'state':'4'},
+                        {'name': 'lot 3','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/47"}},
+                        {'name': 'lot 4','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/48"}}];
+            colElt.forEach((listObj,i) => content +=
+            `<div class="liste">
+                <h4 class="nameLot">${listObj.name}</h4>
+                <div>
+                    <content select="[data-target='${listObj.target['@id']}'][data-state='${listObj.state}']"></content>
+                </div>
+            </div>`);
+            clone.querySelector('#kanban').innerHTML = content;
+            this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
+
+            //writting data when the task change of column
+            $(this).sortable({stop: function(event, ui){
+                var columnPositions = Array.prototype.map.call(this.shadowRoot.querySelectorAll(".liste"), list => list.offsetLeft);
+                var colId = columnPositions.filter(x=>event.clientX>x).length - 1;
+                $(event.toElement).closest('oi-task')[0].dataset.target = colElt[colId].target['@id'];
+                $(event.toElement).closest('oi-task')[0].dataset.state = colElt[colId].state;
+                store.get(event.toElement.parentNode.dataset.src).then(task => store.save(Object.assign(task, colElt[colId])));
+            }});
+
+
+            this.shadowRoot.querySelector('.form').addEventListener("submit",function(event){
+                event.preventDefault(); //bloc function submit as HTML
+                var project = {"author": {"@id": "http://pp.projects.openinitiative.com/user/ldpcontainer/601"},
+                    "@context": "http://owl.openinitiative.com/oicontext.jsonld",
+                    "title" : this.shadowRoot.querySelector('.titleForm').value,
+                    "state" : this.shadowRoot.querySelector('.stateForm').value,
+                    "target" : {"name" : this.shadowRoot.querySelector('.targetForm').value}
+                };
+                store.save(project);
+            }.bind(this));
+        };
+
+        //modifie the content of the kanban
+        taskListPrototype.setContainer = function(uri) {
+            // console.log(this.attributes['data-scr'].value);
+            console.log(this.dataset.src);
+            store.container = uri;
+            store.get(uri).then(project=>{
+                //creation of sub-title
+                this.shadowRoot.querySelector('.stitre').innerHTML = `Project : ${project.title} , Id : ${project.id}`;
+                //                        console.log(project);
+                project.descendants.forEach(function(task, index){
+                    var newTask =  document.createElement('oi-task');
+                    console.dir(newTask);
+                    // console.log(task['@id']);
+                    newTask.dataset.src=task['@id'];
+                    this.appendChild(newTask);
+                }.bind(this));
+            });
+
+            //controle change of lot filter
+            this.shadowRoot.querySelector('.form').addEventListener("mouseup",function(){
+                console.log(this);
+                this.querySelectorAll('oi-task').forEach(function(elt,i){
+                    console.log(elt);
+                    elt.style.display='inline-table';
+                });
+            }.bind(this));
+        };
         document.registerElement('oi-kanban',{prototype: taskListPrototype});
     })();
 </script>

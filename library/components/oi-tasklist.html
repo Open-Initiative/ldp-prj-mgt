@@ -68,7 +68,7 @@
                     var clone = document.importNode(localDoc.querySelector('#task-head').content, true);
                     this.createShadowRoot().appendChild(clone);
 
-                    store.get(this.attributes['data-scr'].value).then(project=>{
+                    store.get(this.attributes['data-src'].value).then(project=>{
                         console.log(project);
 //                        project["ldp:contains"].forEach(function(task, index){   //##### pour fonctionner sur site de préprod
                         project.descendants.forEach(function(task, index){ //##### pour fonctionner sur le site de prod

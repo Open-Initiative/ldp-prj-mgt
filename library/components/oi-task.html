@@ -17,9 +17,10 @@
                     //test if data is available
                     if(attribute== 'data-src' && this.dataset.src){
                         // console.dir(this.dataset.scr);
-                        console.dir(this);
                         store.get(this.dataset.src).then(task=>{
-                            this.dataset.list = task.state;
+                            this.dataset.target = task.target['@id'];
+                            this.dataset.state = task.state;
+                            console.dir(this.dataset);
                             //remove all child elements before add
                             while(this.firstChild) this.removeChild(this.firstChild);
                             this.appendField('title', task.title);
