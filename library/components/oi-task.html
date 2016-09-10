@@ -18,14 +18,28 @@
                     if(attribute== 'data-src' && this.dataset.src){
                         // console.dir(this.dataset.scr);
                         store.get(this.dataset.src).then(task=>{
-                            this.dataset.target = task.target['@id'];
+                            this.dataset.target = task.target? task.target['@id']:"";
                             this.dataset.state = task.state;
-                            console.dir(this.dataset);
+                            this.dataset.id = task['@id'];
+
+                            // console.dir(task);
                             //remove all child elements before add
                             while(this.firstChild) this.removeChild(this.firstChild);
                             this.appendField('title', task.title);
                             this.appendField('target', task.target?task.target.name:"");
-                            this.appendField('author', task.author.fullName);
+                            this.appendField('author', task.author?task.author.fullName:"");
+
+                            this.addEventListener('contextmenu',function(){
+                                event.preventDefault(); //bloc function submit as HTML
+                                // this.shadowRoot = his.ownerDocument.querySelector('oi-kanban').shadowRoot;
+                                this.parentNode.shadowRoot.querySelector('.idForm').value = task['@id'];
+                                this.parentNode.shadowRoot.querySelector('.titleForm').value = task.title;
+                                this.parentNode.shadowRoot.querySelector('.stateForm').value = task.state;
+                                if(task.author){
+                                    this.parentNode.shadowRoot.querySelector('.authorForm').value = task.author['@id'];
+                                }
+                                this.parentNode.shadowRoot.querySelector('.optionForm').style.display = "block";
+                            }.bind(this))
                         });
 
                     }
