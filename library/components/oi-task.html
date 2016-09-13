@@ -25,21 +25,22 @@
                             // console.dir(task);
                             //remove all child elements before add
                             while(this.firstChild) this.removeChild(this.firstChild);
+                            this.appendIco('../../images/pencil.png','#');
                             this.appendField('title', task.title);
                             this.appendField('target', task.target?task.target.name:"");
                             this.appendField('author', task.author?task.author.fullName:"");
 
-                            this.addEventListener('contextmenu',function(){
-                                event.preventDefault(); //bloc function submit as HTML
-                                // this.shadowRoot = his.ownerDocument.querySelector('oi-kanban').shadowRoot;
-                                this.parentNode.shadowRoot.querySelector('.idForm').value = task['@id'];
-                                this.parentNode.shadowRoot.querySelector('.titleForm').value = task.title;
-                                this.parentNode.shadowRoot.querySelector('.stateForm').value = task.state;
-                                if(task.author){
-                                    this.parentNode.shadowRoot.querySelector('.authorForm').value = task.author['@id'];
-                                }
-                                this.parentNode.shadowRoot.querySelector('.optionForm').style.display = "block";
-                            }.bind(this))
+                            // this.addEventListener('contextmenu',function(){
+                            //     event.preventDefault(); //bloc function submit as HTML
+                            //     // this.shadowRoot = his.ownerDocument.querySelector('oi-kanban').shadowRoot;
+                            //     this.parentNode.shadowRoot.querySelector('.idForm').value = task['@id'];
+                            //     this.parentNode.shadowRoot.querySelector('.titleForm').value = task.title;
+                            //     this.parentNode.shadowRoot.querySelector('.stateForm').value = task.state;
+                            //     if(task.author){
+                            //         this.parentNode.shadowRoot.querySelector('.authorForm').value = task.author['@id'];
+                            //     }
+                            //     this.parentNode.shadowRoot.querySelector('.optionForm').style.display = "block";
+                            // }.bind(this))
                         });
 
                     }
@@ -53,6 +54,15 @@
                 span.innerHTML = value;
                 this.appendChild(span);
             };
+        taskPrototype.appendIco = function(url, link) {
+            var ico = document.createElement('img');
+            var targetLink = document.createElement('a');
+            targetLink.setAttribute('href', link);
+            ico.setAttribute('src', url);
+            ico.className = "icone";
+            targetLink.appendChild(ico)
+            this.appendChild(targetLink);
+        };
 
         document.registerElement('oi-task',{prototype: taskPrototype});
     })();
