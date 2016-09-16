@@ -25,22 +25,48 @@
                             // console.dir(task);
                             //remove all child elements before add
                             while(this.firstChild) this.removeChild(this.firstChild);
-                            this.appendIco('../../images/pencil.png','#');
                             this.appendField('title', task.title);
                             this.appendField('target', task.target?task.target.name:"");
                             this.appendField('author', task.author?task.author.fullName:"");
+                            var form = document.createElement('form')
+                            form.setAttribute('style','display:none;');
+                            var formNode = this.appendChild(form);
+                            formNode.innerHTML = `<input type="text" name="title" value="${this.children[0].innerText}" class="titleForm"><br>
+                                        <input type="hidden" name="@id" value="${this.dataset.id}" class="targetForm">
+                                        <input type="hidden" name="target" value="${this.dataset.target}" class="targetForm">
+                                        <input type="hidden" name="state" value="${this.dataset.state}" class="stateForm">
+                                        <input type="submit" value="Sauver" class="submitForm">
+                                        <input type="button" value="Annule" class="resetForm">`;
 
-                            // this.addEventListener('contextmenu',function(){
-                            //     event.preventDefault(); //bloc function submit as HTML
-                            //     // this.shadowRoot = his.ownerDocument.querySelector('oi-kanban').shadowRoot;
-                            //     this.parentNode.shadowRoot.querySelector('.idForm').value = task['@id'];
-                            //     this.parentNode.shadowRoot.querySelector('.titleForm').value = task.title;
-                            //     this.parentNode.shadowRoot.querySelector('.stateForm').value = task.state;
-                            //     if(task.author){
-                            //         this.parentNode.shadowRoot.querySelector('.authorForm').value = task.author['@id'];
-                            //     }
-                            //     this.parentNode.shadowRoot.querySelector('.optionForm').style.display = "block";
-                            // }.bind(this))
+                            //click to modifie a task
+                            $(this).children('span').click(t => {
+                                $('oi-task form').attr('style','display:none;');
+                                $('oi-task span').attr('style','display:block;');
+                                this.querySelector('form').setAttribute('style','display:block;');
+                                $(this).children('span').hide();
+                                this.querySelector('.submitForm').addEventListener('click', a=>{
+                                    event.preventDefault(); //bloc function submit as HTML
+                                    console.log($(formNode).serializeArray());
+                                    var project = {"@context" : "http://owl.openinitiative.com/oicontext.jsonld", 'target' : {'@id' : ''}}
+                                    JSON.parse(JSON.stringify($(formNode).serializeArray())).forEach(d => {
+                                        if(d.name =='target'){
+                                            project['target']['@id'] = d.value;
+                                        } else {
+                                            project[d.name] = d.value;
+                                        }
+                                        if(d.name =='title'){this.querySelector('.title').innerText = d.value}
+                                    });
+                                    store.save(project);
+                                    this.querySelector('form').setAttribute('style','display:none;');
+                                    $(this).children('span').show();
+                                });
+                                this.querySelector('.resetForm').addEventListener('click', a=>{
+                                    this.querySelector('form').setAttribute('style','display:none;');
+                                    console.dir(this.querySelector('form'));
+                                    $(this).children('span').show();
+                                });
+                            });
+
                         });
 
                     }
@@ -54,15 +80,6 @@
                 span.innerHTML = value;
                 this.appendChild(span);
             };
-        taskPrototype.appendIco = function(url, link) {
-            var ico = document.createElement('img');
-            var targetLink = document.createElement('a');
-            targetLink.setAttribute('href', link);
-            ico.setAttribute('src', url);
-            ico.className = "icone";
-            targetLink.appendChild(ico)
-            this.appendChild(targetLink);
-        };
 
         document.registerElement('oi-task',{prototype: taskPrototype});
     })();
