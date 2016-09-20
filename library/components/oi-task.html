@@ -9,6 +9,7 @@
     (function(){
         var localDoc = document._currentScript.ownerDocument;
         var store = new MyStore({context: "http://owl.openinitiative.com/oicontext.jsonld", defaultSerializer: 'application/ld+json'});
+        var stateName = ['Proposé','Accepté','Demarré','Livré','Validé'];
 
         var taskPrototype = Object.create(HTMLElement.prototype, {
 			attributeChangedCallback: {
@@ -28,7 +29,7 @@
                             while(this.firstChild) this.removeChild(this.firstChild);
                             if(this.parentNode.localName == "oi-tasklist"){
                                 this.appendField('id', task['@id'].match(/\d+/));
-                                this.appendField('state', task.state);
+                                this.appendField('state', stateName[task.state]);
 
                             }
                             this.appendField('title', task.title);
@@ -37,7 +38,6 @@
                             var form = document.createElement('form')
                             form.setAttribute('style','display:none;');
                             var formNode = this.appendChild(form);
-                            console.log($(this).children('.title')[0].innerText);
                             formNode.innerHTML = `<input type="text" name="title" value="${$(this).children('.title')[0].innerText}" class="titleForm">
                                         <input type="hidden" name="@id" value="${this.dataset.id}" class="targetForm">
                                         <input type="hidden" name="target" value="${this.dataset.target}" class="targetForm">

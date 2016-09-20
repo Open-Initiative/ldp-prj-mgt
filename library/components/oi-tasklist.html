@@ -98,32 +98,12 @@
                             var newTask =  document.createElement('oi-task');
                             newTask.dataset.src=task['@id'];
                             this.appendChild(newTask);
-
-
-                                // var newTask =  document.createElement('oi-task');
-                                // var container = document.createElement('div');
-                                // container.className = 'task';
-                                // // var content = `<span class='id'>${task['id']}</span>
-                                // // <span class='state'>${task['state']}</span>
-                                // // <span class='title'>${task['title']}</span>
-                                // // <span class='author'>${task['author']['fullName']}</span>
-                                // // <span class='target'>${task['target']['name']}</span>`;
-                                // // console.log(task['author']);
-                                // // container.innerHTML = content;
-                                // newTask.setAttribute('data-parent', 'oi-tasklist');
-                                // //data-scr must be the last data attribute to be send.
-                                // newTask.dataset.src=task['@id'];
-                                // this.appendChild(newTask);
-                                //
-                                // // this.shadowRoot.appendChild(container);
-                                // // console.log(task['state']);
-                                // this.ownerDocument.querySelector("oi-tasklist").appendChild(newTask);
                         }.bind(this));
 
 
                         //creation of sub-title
 
-                        this.shadowRoot.querySelector('.stitre').innerHTML = `Project : ${project.title} , Id : ${project.id}`;
+                        this.shadowRoot.querySelector('.stitre').innerHTML = `Project : ${project.title} , Url : ${project['@id']}`;
                         //creation of header of table
                         var content = "";
                         [{n:'Id',s:'id'}, {n:'Etat',s:'state'}, {n:'Titre',s:'title'}, {n:'Lot',s:'target'}, {n:'Auteur',s:'author'}, {n:'Commentaire(s)',s:'comment'}].forEach((col,i) => content +=
@@ -133,35 +113,22 @@
                         //détection relachement touche sur un champ de la barre de titre
                         tableHeader.addEventListener("keyup",function(){
                             // initialise affichage à visible
-                            this.shadowRoot.querySelectorAll('oi-task').forEach(function(elt,i){
-                                //elt.style.display='inline-table';
-                            });
+                            this.querySelectorAll('oi-task').forEach(elt => elt.style.display='inline-table');
+                            console.log(tableHeader.querySelector('#id').value);
                             // chxxx contient the string to search in the xxx column
-                            var chid = this.shadowRoot.querySelector('#id').value;
-                            var chstate =this.shadowRoot.querySelector('#state').value;
-                            var chtitle = this.shadowRoot.querySelector('#title').value.toUpperCase();
-                            var chauthor = this.shadowRoot.querySelector('#author').value.toUpperCase();
-                            var chTarget = this.shadowRoot.querySelector('#target').value.toUpperCase();
-                            var chcomment = this.shadowRoot.querySelector('#comment').value.toUpperCase();
+                            var chid = tableHeader.querySelector('#id').value;
+                            var chstate =tableHeader.querySelector('#state').value;
+                            var chtitle = tableHeader.querySelector('#title').value.toUpperCase();
+                            var chauthor = tableHeader.querySelector('#author').value.toUpperCase();
+                            var chTarget = tableHeader.querySelector('#target').value.toUpperCase();
+                            var chcomment = tableHeader.querySelector('#comment').value.toUpperCase();
                             // basexxx contient all the <span class="xxx">
-                            this.shadowRoot.querySelectorAll('.task .id').forEach(function(elt,i){
-                                if(elt.innerHTML.indexOf(chid)==-1){elt.parentNode.style.display='none';}
-                            });
-                            this.shadowRoot.querySelectorAll('.task .state').forEach(function(elt,i){
-                                if(elt.innerHTML.indexOf(chstate)==-1){elt.parentNode.style.display='none';}
-                            });
-                            this.shadowRoot.querySelectorAll('.task .title').forEach(function(elt,i){
-                                if(elt.innerHTML.toUpperCase().indexOf(chtitle)==-1){elt.parentNode.style.display='none';}
-                            });
-                            this.shadowRoot.querySelectorAll('.task .author').forEach(function(elt,i){
-                                if(elt.innerHTML.toUpperCase().indexOf(chauthor)==-1){elt.parentNode.style.display='none';}
-                            });
-                            this.shadowRoot.querySelectorAll('.task .target').forEach(function(elt,i){
-                                if(elt.innerHTML.toUpperCase().indexOf(chTarget)==-1){elt.parentNode.style.display='none';}
-                            });
-                            this.shadowRoot.querySelectorAll('.task .comment').forEach(function(elt,i){
-                                if(elt.innerHTML.toUpperCase().indexOf(chcomment)==-1){elt.parentNode.style.display='none';}
-                            });
+                            this.querySelectorAll('oi-task .id').forEach(elt =>{if(elt.innerHTML.indexOf(chid)==-1){elt.parentNode.style.display='none';}});
+                            this.querySelectorAll('oi-task .state').forEach(elt =>{if(elt.innerHTML.indexOf(chstate)==-1){elt.parentNode.style.display='none';}});
+                            this.querySelectorAll('oi-task .title').forEach(elt =>{if(elt.innerHTML.toUpperCase().indexOf(chtitle)==-1){elt.parentNode.style.display='none';}});
+                            this.querySelectorAll('oi-task .author').forEach(elt =>{if(elt.innerHTML.toUpperCase().indexOf(chauthor)==-1){elt.parentNode.style.display='none';}});
+                            this.querySelectorAll('oi-task .target').forEach(elt =>{if(elt.innerHTML.toUpperCase().indexOf(chTarget)==-1){elt.parentNode.style.display='none';}});
+                            this.querySelectorAll('oi-task .comment').forEach(elt =>{if(elt.innerHTML.toUpperCase().indexOf(chcomment)==-1){elt.parentNode.style.display='none';}});
                         }.bind(this));
 
                     });
