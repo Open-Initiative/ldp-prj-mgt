@@ -27,7 +27,7 @@
 
     }
     .listeContent {
-        max-height: 50vh;
+        max-height: 70vh;
         overflow-y: auto;
     }
     /* ::content is for the compatibility fireFox Chrome */
@@ -84,6 +84,7 @@
     }
     ::content .titleForm {
         width:150px;
+        height:60px;
     }
 </style>
 <div class="pageHeader">
@@ -156,11 +157,11 @@
             // click to show the form to append a task
             this.shadowRoot.querySelectorAll('.showFormTask').forEach(e=>e.addEventListener('click', c => {
                 var formAddTask = document.createElement('form');
-                formAddTask.setAttribute('style','height:50px;');
+                formAddTask.setAttribute('style','height:60px;');
                 e.parentNode.appendChild(formAddTask);
                 $(e)[0].hidden = true;
                 console.dir($(e)[0]);
-                formAddTask.innerHTML = `<input type="text" name="title" value="" class="titleForm"><br>
+                formAddTask.innerHTML = `<textarea type="text" name="title" class="titleForm"></textarea><br>
                             <input type="hidden" name="author" value="http://pp.projects.openinitiative.com/user/ldpcontainer/601">
                             <input type="hidden" name="target" value="${colElt[e.dataset.form].target['@id']}" class="targetForm">
                             <input type="hidden" name="state" value="${colElt[e.dataset.form].state || 0}" class="stateForm">

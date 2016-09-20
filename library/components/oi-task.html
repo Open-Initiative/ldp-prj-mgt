@@ -38,7 +38,7 @@
                             var form = document.createElement('form')
                             form.setAttribute('style','display:none;');
                             var formNode = this.appendChild(form);
-                            formNode.innerHTML = `<input type="text" name="title" value="${$(this).children('.title')[0].innerText}" class="titleForm">
+                            formNode.innerHTML = `<textarea name="title" class="titleForm">${$(this).children('.title')[0].innerText}</textarea>
                                         <input type="hidden" name="@id" value="${this.dataset.id}" class="targetForm">
                                         <input type="hidden" name="target" value="${this.dataset.target}" class="targetForm">
                                         <input type="hidden" name="state" value="${this.dataset.state}" class="stateForm">
