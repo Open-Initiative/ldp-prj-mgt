@@ -21,28 +21,35 @@
                             this.dataset.target = task.target? task.target['@id']:"";
                             this.dataset.state = task.state;
                             this.dataset.id = task['@id'];
-
+                            var initialDisplay = (this.parentNode.localName == "oi-tasklist")?'display:inline-block;':'display:block;';
+                            // console.log(this.dataset);
                             // console.dir(task);
                             //remove all child elements before add
                             while(this.firstChild) this.removeChild(this.firstChild);
+                            if(this.parentNode.localName == "oi-tasklist"){
+                                this.appendField('id', task['@id'].match(/\d+/));
+                                this.appendField('state', task.state);
+
+                            }
                             this.appendField('title', task.title);
                             this.appendField('target', task.target?task.target.name:"");
                             this.appendField('author', task.author?task.author.fullName:"");
                             var form = document.createElement('form')
                             form.setAttribute('style','display:none;');
                             var formNode = this.appendChild(form);
-                            formNode.innerHTML = `<input type="text" name="title" value="${this.children[0].innerText}" class="titleForm"><br>
+                            console.log($(this).children('.title')[0].innerText);
+                            formNode.innerHTML = `<input type="text" name="title" value="${$(this).children('.title')[0].innerText}" class="titleForm">
                                         <input type="hidden" name="@id" value="${this.dataset.id}" class="targetForm">
                                         <input type="hidden" name="target" value="${this.dataset.target}" class="targetForm">
                                         <input type="hidden" name="state" value="${this.dataset.state}" class="stateForm">
-                                        <input type="submit" value="Sauver" class="submitForm">
-                                        <input type="button" value="Annule" class="resetForm">`;
+                                        <input type="image" name="submit" src="../../images/ok.svg" border="0" alt="Submit" class="submitForm"/>
+                                        <input type="image" src="../../images/cancel.svg" border="0" alt="reset" class="resetForm"/>`;
 
                             //click to modifie a task
                             $(this).children('span').click(t => {
                                 $('oi-task form').attr('style','display:none;');
-                                $('oi-task span').attr('style','display:block;');
-                                this.querySelector('form').setAttribute('style','display:block;');
+                                $('oi-task span').attr('style',initialDisplay);
+                                this.querySelector('form').setAttribute('style',initialDisplay);
                                 $(this).children('span').hide();
                                 this.querySelector('.submitForm').addEventListener('click', a=>{
                                     event.preventDefault(); //bloc function submit as HTML
@@ -61,6 +68,7 @@
                                     $(this).children('span').show();
                                 });
                                 this.querySelector('.resetForm').addEventListener('click', a=>{
+                                    event.preventDefault(); //bloc function submit as HTML
                                     this.querySelector('form').setAttribute('style','display:none;');
                                     console.dir(this.querySelector('form'));
                                     $(this).children('span').show();

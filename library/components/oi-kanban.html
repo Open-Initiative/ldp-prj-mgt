@@ -82,6 +82,9 @@
     .showFormTask:hover {
         cursor: pointer;
     }
+    ::content .titleForm {
+        width:150px;
+    }
 </style>
 <div class="pageHeader">
     <h3 class="stitre"></h3>
@@ -89,7 +92,7 @@
 <div class="surface">
     <div class="pageContent">
         <div class="board">
-            <content select="[data-target='']"></content>
+            <content select="[data-target='']"></content> <!-- To show before the table the tasks witch not have target -->
             <div id="kanban"></div>
         </div>
     </div>
@@ -98,7 +101,6 @@
 <script type="text/javascript" src="http://cdn.happy-dev.fr/LDP-framework/ldpframework.js"></script>
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 <script>
     (function(){
@@ -151,8 +153,7 @@
 
             clone.querySelector('#kanban').innerHTML = content;
             this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
-            //click to cancel appending tack
-            // click to show thee form to append a task
+            // click to show the form to append a task
             this.shadowRoot.querySelectorAll('.showFormTask').forEach(e=>e.addEventListener('click', c => {
                 var formAddTask = document.createElement('form');
                 formAddTask.setAttribute('style','height:50px;');
@@ -177,10 +178,11 @@
                             newProject[d.name] = d.value;
                         }
                     });
-                    store.save(newProject);
+                    store.save(newProject);//then(project=>{})
                     e.nextElementSibling.querySelector('.titleForm').value = '';
 
                 });
+                //click to cancel appending tack
                 e.nextElementSibling.querySelector('.resetForm').addEventListener('click', a=>{
                     e.parentNode.removeChild(e.nextElementSibling)});
 
@@ -209,7 +211,6 @@
                 //                        console.log(project);
                 project.descendants.forEach(function(task, index){
                     var newTask =  document.createElement('oi-task');
-                    newTask.dataset.parentTarget = project.target;
                     // console.dir(newTask);
                     // console.log(task['@id']);
                     newTask.dataset.src=task['@id'];

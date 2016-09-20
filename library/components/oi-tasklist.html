@@ -15,26 +15,40 @@
             padding: 5px 5px;
             border-right: solid 1px #fff;
         }
-        .hd{
+        .head{
             background-color: #fc0;
             color: #fff;
         }
-        .hd input{
+        .head input{
             width : 100%;
             background-color: #fd8;
             margin-top:1px;
             border:none;
         }
-        .hd span{
+        .head span{
             display:inline-block;
         }
-        .tk{
+        oi-task{
             display:inline-table;
+            width:100%;
             background-color: #eee;
             color: #000;
             padding: 0;
         }
-        .tk span{
+        oi-task span{
+            display:inline-block;
+            background-color: #eee;
+            margin:0;
+            overflow: hidden;
+        }
+        ::content oi-task{
+            display:inline-table;
+            width:100%;
+            background-color: #eee;
+            color: #000;
+            padding: 0;
+        }
+        ::content oi-task span{
             display:inline-block;
             background-color: #eee;
             margin:0;
@@ -43,21 +57,31 @@
         .id, .state, .target {
             width:5%;
         }
+        ::content .id, ::content .state, ::content .target {
+            width:5%;
+        }
         .author, .comment{
             width:15%;
         }
         .title {
             width:55%;
         }
+        ::content .title {
+            width:55%;
+        }
+        .titleForm {
+            width:100px;
+        }
 
     </style>
     <h1>Tableau des tâches du projet</h1>
     <h3 class="stitre"></h3>
-    <div class="hd"></div>
-    <content>oi-tasklist</content>
+    <div class="head"></div>
+    <content></content>
+
 </template>
 
-<script type="text/javascript" src="http://happy-dev.fr/library/LDP-framework/ldpframework.js"></script>
+<script type="text/javascript" src="http://cdn.happy-dev.fr/LDP-framework/ldpframework.js"></script>
 <script>
     (function(){
         var localDoc = document._currentScript.ownerDocument;
@@ -68,28 +92,32 @@
                     var clone = document.importNode(localDoc.querySelector('#task-head').content, true);
                     this.createShadowRoot().appendChild(clone);
 
-                    store.get(this.attributes['data-src'].value).then(project=>{
+                    store.get(this.dataset.src).then(project=>{
                         console.log(project);
-//                        project["ldp:contains"].forEach(function(task, index){   //##### pour fonctionner sur site de préprod
-                        project.descendants.forEach(function(task, index){ //##### pour fonctionner sur le site de prod
-                            store.get(task).then(task=>{
-                                var newTask =  document.createElement('oi-task');
-                                var container = document.createElement('div');
-                                container.className = 'tk';
-                                var content = `<span class='id'>${task['id']}</span>
-                                <span class='state'>${task['state']}</span>
-                                <span class='title'>${task['title']}</span>
-                                <span class='author'>${task['author']['fullName']}</span>
-                                <span class='target'>${task['target']['name']}</span>`;
-                                console.log(task['author']);
-                                container.innerHTML = content;
-                                newTask.setAttribute('data-parent', 'oi-tasklist');
-                                //data-scr must be the last data attribute to be send.
-                                newTask.setAttribute('data-scr', task['@id']);
-                                this.shadowRoot.appendChild(container);
-                                // console.log(task['state']);
-                                this.ownerDocument.querySelector("oi-tasklist").appendChild(newTask);
-                            });
+                        project.descendants.forEach(function(task, index){
+                            var newTask =  document.createElement('oi-task');
+                            newTask.dataset.src=task['@id'];
+                            this.appendChild(newTask);
+
+
+                                // var newTask =  document.createElement('oi-task');
+                                // var container = document.createElement('div');
+                                // container.className = 'task';
+                                // // var content = `<span class='id'>${task['id']}</span>
+                                // // <span class='state'>${task['state']}</span>
+                                // // <span class='title'>${task['title']}</span>
+                                // // <span class='author'>${task['author']['fullName']}</span>
+                                // // <span class='target'>${task['target']['name']}</span>`;
+                                // // console.log(task['author']);
+                                // // container.innerHTML = content;
+                                // newTask.setAttribute('data-parent', 'oi-tasklist');
+                                // //data-scr must be the last data attribute to be send.
+                                // newTask.dataset.src=task['@id'];
+                                // this.appendChild(newTask);
+                                //
+                                // // this.shadowRoot.appendChild(container);
+                                // // console.log(task['state']);
+                                // this.ownerDocument.querySelector("oi-tasklist").appendChild(newTask);
                         }.bind(this));
 
 
@@ -98,9 +126,9 @@
                         this.shadowRoot.querySelector('.stitre').innerHTML = `Project : ${project.title} , Id : ${project.id}`;
                         //creation of header of table
                         var content = "";
-                        [{n:'Id',s:'id'}, {n:'Etat',s:'state'}, {n:'Titre',s:'title'}, {n:'Auteur',s:'author'}, {n:'Lot',s:'target'}, {n:'Commentaire(s)',s:'comment'}].forEach((col,i) => content +=
+                        [{n:'Id',s:'id'}, {n:'Etat',s:'state'}, {n:'Titre',s:'title'}, {n:'Lot',s:'target'}, {n:'Auteur',s:'author'}, {n:'Commentaire(s)',s:'comment'}].forEach((col,i) => content +=
                         `<span class=${col.s}>${col.n}<br><input id="${col.s}"></input></span>`);
-                        var tableHeader= this.shadowRoot.querySelector('.hd');
+                        var tableHeader= this.shadowRoot.querySelector('.head');
                         tableHeader.innerHTML = content;
                         //détection relachement touche sur un champ de la barre de titre
                         tableHeader.addEventListener("keyup",function(){
@@ -116,22 +144,22 @@
                             var chTarget = this.shadowRoot.querySelector('#target').value.toUpperCase();
                             var chcomment = this.shadowRoot.querySelector('#comment').value.toUpperCase();
                             // basexxx contient all the <span class="xxx">
-                            this.shadowRoot.querySelectorAll('.tk .id').forEach(function(elt,i){
+                            this.shadowRoot.querySelectorAll('.task .id').forEach(function(elt,i){
                                 if(elt.innerHTML.indexOf(chid)==-1){elt.parentNode.style.display='none';}
                             });
-                            this.shadowRoot.querySelectorAll('.tk .state').forEach(function(elt,i){
+                            this.shadowRoot.querySelectorAll('.task .state').forEach(function(elt,i){
                                 if(elt.innerHTML.indexOf(chstate)==-1){elt.parentNode.style.display='none';}
                             });
-                            this.shadowRoot.querySelectorAll('.tk .title').forEach(function(elt,i){
+                            this.shadowRoot.querySelectorAll('.task .title').forEach(function(elt,i){
                                 if(elt.innerHTML.toUpperCase().indexOf(chtitle)==-1){elt.parentNode.style.display='none';}
                             });
-                            this.shadowRoot.querySelectorAll('.tk .author').forEach(function(elt,i){
+                            this.shadowRoot.querySelectorAll('.task .author').forEach(function(elt,i){
                                 if(elt.innerHTML.toUpperCase().indexOf(chauthor)==-1){elt.parentNode.style.display='none';}
                             });
-                            this.shadowRoot.querySelectorAll('.tk .target').forEach(function(elt,i){
+                            this.shadowRoot.querySelectorAll('.task .target').forEach(function(elt,i){
                                 if(elt.innerHTML.toUpperCase().indexOf(chTarget)==-1){elt.parentNode.style.display='none';}
                             });
-                            this.shadowRoot.querySelectorAll('.tk .comment').forEach(function(elt,i){
+                            this.shadowRoot.querySelectorAll('.task .comment').forEach(function(elt,i){
                                 if(elt.innerHTML.toUpperCase().indexOf(chcomment)==-1){elt.parentNode.style.display='none';}
                             });
                         }.bind(this));
