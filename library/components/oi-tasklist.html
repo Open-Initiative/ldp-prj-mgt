@@ -75,21 +75,52 @@
         ::content .titleForm {
             width:400px;
         }
+        .formAddTask{
+          display:none;
+        }
+        .titleForm, .targetForm, .stateForm{
+          width:500px;
+        }
     </style>
     <h1>Tableau des tâches du projet</h1>
     <h3 class="stitre"></h3>
+    <img src="../../images/add.svg" class="showFormTask" >
+    <div class="formAddTask">
+        <label>Tâche<br><input type="text" name="title" class="titleForm"></label><br>
+        <input type="hidden" name="author" value="http://pp.projects.openinitiative.com/user/ldpcontainer/601">
+        <label>lot<br>
+          <select name="target" class="targetForm" class="targetForm">
+            <option value="http://pp.projects.openinitiative.com/release/ldpcontainer/45">lot1</option>
+            <option value="http://pp.projects.openinitiative.com/release/ldpcontainer/46">lot2</option>
+            <option value="http://pp.projects.openinitiative.com/release/ldpcontainer/47">lot3</option>
+            <option value="http://pp.projects.openinitiative.com/release/ldpcontainer/48">lot4</option>
+            <option value="http://pp.projects.openinitiative.com/release/ldpcontainer/49">lot5</option>
+          </select>
+        </label><br>
+        <label>Etat<br>
+          <select name="state" class="stateForm" class="stateForm">
+            <option value="0">Proposé</option>
+            <option value="1">Accepté</option>
+            <option value="2">Démarré</option>
+            <option value="3">Livré</option>
+            <option value="4">Validé</option>
+          </select>
+        </label>
+        <input type="image" name="submit" src="../../images/ok.svg" border="0" alt="Submit" class="submitForm">
+        <input type="image" src="../../images/cancel.svg" border="0" alt="reset" class="resetForm"><br>
+    </div>
     <div class="head"></div>
     <content></content>
-
 </template>
 
 <script type="text/javascript" src="http://cdn.happy-dev.fr/LDP-framework/ldpframework.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script>
     (function(){
         var localDoc = document._currentScript.ownerDocument;
         var store = new MyStore({context: "http://owl.openinitiative.com/oicontext.jsonld", defaultSerializer: 'application/ld+json'});
-		var taskListPrototype = Object.create(HTMLElement.prototype, {
-			createdCallback: {
+    		var taskListPrototype = Object.create(HTMLElement.prototype, {
+    			   createdCallback: {
                 value: function() {
                     var clone = document.importNode(localDoc.querySelector('#task-head').content, true);
                     this.createShadowRoot().appendChild(clone);
@@ -112,7 +143,41 @@
                         `<span class=${col.s}>${col.n}<br><input id="${col.s}"></input></span>`);
                         var tableHeader= this.shadowRoot.querySelector('.head');
                         tableHeader.innerHTML = content;
-                        //détection relachement touche sur un champ de la barre de titre
+
+                        // click to show the form to append a task
+                        this.shadowRoot.querySelector('.showFormTask').addEventListener('click', c => {
+                          this.shadowRoot.querySelector('.formAddTask').style.display = 'block';
+                        });
+
+                        // click to append a task
+                        this.shadowRoot.querySelector('.submitForm').addEventListener('click', c => {
+                            event.preventDefault(); //bloc function submit as HTML
+                            var newProject = {"@context" : "http://owl.openinitiative.com/oicontext.jsonld" , 'target' : {'@id' : ''}}
+                            console.log($('.formAddTask'))
+                            // JSON.parse(JSON.stringify($(e.nextElementSibling).serializeArray())).forEach(d => {
+                            //     if(d.name =='target'){
+                            //         newProject['target']['@id'] = d.value;
+                            //     } else {
+                            //         newProject[d.name] = d.value;
+                            //     }
+                            // });
+                            // // console.log(newProject);
+                            // store.save(newProject).then(project=>{
+                            //     // console.log(project['@graph'][0]['@id']);
+                            //     var newTask =  document.createElement('oi-task');
+                            //     newTask.dataset.src="http://pp.projects.openinitiative.com/project/ldpcontainer/" + project['@graph'][0]['@id'];
+                            //     this.appendChild(newTask);
+                            //
+                            // })
+                            // e.nextElementSibling.querySelector('.titleForm').value = '';
+                        });
+
+                        // click to hide the form to append a task
+                        this.shadowRoot.querySelector('.resetForm').addEventListener('click', c => {
+                          this.shadowRoot.querySelector('.formAddTask').style.display = 'none';
+                        });
+
+                        //detection of mouseUp in a field of the header to change the filter
                         tableHeader.addEventListener("keyup",function(){
                             // initialise affichage à visible
                             this.querySelectorAll('oi-task').forEach(elt => elt.style.display='inline-table');

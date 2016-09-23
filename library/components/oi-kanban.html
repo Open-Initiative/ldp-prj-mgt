@@ -160,7 +160,7 @@
                 formAddTask.setAttribute('style','height:60px;');
                 e.parentNode.appendChild(formAddTask);
                 $(e)[0].hidden = true;
-                console.dir($(e)[0]);
+                // console.dir($(e)[0]);
                 formAddTask.innerHTML = `<textarea type="text" name="title" class="titleForm"></textarea><br>
                             <input type="hidden" name="author" value="http://pp.projects.openinitiative.com/user/ldpcontainer/601">
                             <input type="hidden" name="target" value="${colElt[e.dataset.form].target['@id']}" class="targetForm">
@@ -168,8 +168,6 @@
                             <input type="submit" value="Créer" class="submitForm">
                             <input type="button" value="Fermer" class="resetForm">`;
                 e.nextElementSibling.querySelector('.submitForm').addEventListener('click', a=>{
-
-
                     event.preventDefault(); //bloc function submit as HTML
                     var newProject = {"@context" : "http://owl.openinitiative.com/oicontext.jsonld" , 'target' : {'@id' : ''}}
                     JSON.parse(JSON.stringify($(e.nextElementSibling).serializeArray())).forEach(d => {
@@ -179,9 +177,9 @@
                             newProject[d.name] = d.value;
                         }
                     });
-                    console.log(newProject);
+                    // console.log(newProject);
                     store.save(newProject).then(project=>{
-                        console.log(project['@graph'][0]['@id']);
+                        // console.log(project['@graph'][0]['@id']);
                         var newTask =  document.createElement('oi-task');
                         newTask.dataset.src="http://pp.projects.openinitiative.com/project/ldpcontainer/" + project['@graph'][0]['@id'];
                         this.appendChild(newTask);
@@ -189,7 +187,7 @@
                     })
                     e.nextElementSibling.querySelector('.titleForm').value = '';
                 });
-                //click to cancel appending tack
+                //click to cancel appending task
                 e.nextElementSibling.querySelector('.resetForm').addEventListener('click', a=>{
                     e.parentNode.removeChild(e.nextElementSibling);
                     $(e)[0].hidden = false;
@@ -211,17 +209,13 @@
         //modifie the content of the kanban
         taskListPrototype.setContainer = function(uri) {
             // console.log(this.attributes['data-scr'].value);
-            console.log(this.dataset.src);
+            // console.log(this.dataset.src);
             store.container = uri;
             store.get(uri).then(project=>{
                 //creation of sub-title
-                console.log(project);
                 this.shadowRoot.querySelector('.stitre').innerHTML = `Project : ${project.title} , Url : ${project['@id']}`;
-                //                        console.log(project);
                 project.descendants.forEach(function(task, index){
                     var newTask =  document.createElement('oi-task');
-                    // console.dir(newTask);
-                    // console.log(task['@id']);
                     newTask.dataset.src=task['@id'];
                     this.appendChild(newTask);
                 }.bind(this));
