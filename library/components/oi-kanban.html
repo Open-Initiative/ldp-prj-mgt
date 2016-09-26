@@ -17,7 +17,7 @@
     }
     .liste {
         display:inline-block;
-        width:220px;
+        width:250px;
         padding: 0 0;
         border: solid 1px #fff;
         background-color: #fc0;
@@ -83,8 +83,12 @@
         cursor: pointer;
     }
     ::content .titleForm {
-        width:150px;
+        width:190px;
         height:60px;
+        font-size: 0.8em;
+    }
+    ::content .title, ::content .target, .showFormTask{
+      font-size: 0.8em;
     }
 </style>
 <div class="pageHeader">
@@ -112,7 +116,7 @@
 			createdCallback: {
 
                 value: function() {
-                    this.setColumns();
+                    this.setColumns(this.dataset.src);
                     if(this.dataset.src){this.setContainer(this.dataset.src)};
                 }
             },
@@ -127,73 +131,84 @@
 		});
 
         //create the background of kanban
-        taskListPrototype.setColumns = function() {
+        taskListPrototype.setColumns = function(uri) {
             var clone = document.importNode(localDoc.querySelector('#task-head').content, true);
             var content = '';
-            var colElt = [{'name': 'lot 1','filter':'', 'target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/45"}},
-                        {'name': 'Proposé','filter':'[data-state=\'0\']','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/46"}, 'state':'0'},
-                        {'name': 'Accepté','filter':'[data-state=\'1\']','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/46"}, 'state':'1'},
-                        {'name': 'Démarré','filter':'[data-state=\'2\']','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/46"}, 'state':'2'},
-                        {'name': 'Livré','filter':'[data-state=\'3\']','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/46"}, 'state':'3'},
-                        {'name': 'Validé','filter':'[data-state=\'4\']','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/46"}, 'state':'4'},
-                        {'name': 'lot 3','filter':'','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/47"}},
-                        {'name': 'lot 4','filter':'','target' : {"@id": "http://pp.projects.openinitiative.com/release/ldpcontainer/48"}}];
-            colElt.forEach((listObj,i) => {
-                content +=
-                    `<div class="liste">
-                        <h4 class="nameLot">${listObj.name}</h4>
-                        <div class="listeContent">
-                            <content select="[data-target='${listObj.target['@id']}']${listObj.filter}"></content>
-                        </div>
-                        <div>
-                            <span class="showFormTask" data-form="${i}">Ajouter une tâche</span>
-                        </div>
-                    </div>`;
-                }
-            );
+            var stateName = ['Proposé','Accepté','Demarré','Livré','Validé'];
 
-            clone.querySelector('#kanban').innerHTML = content;
-            this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
-            // click to show the form to append a task
-            this.shadowRoot.querySelectorAll('.showFormTask').forEach(e=>e.addEventListener('click', c => {
+            store.container = uri;
+            store.get(uri).then(project=>{
+              var colElt = [];
+              project.release_set.forEach((r,i)=>{if(r.done){
+                colElt.push({'name': r.name,'filter':'', 'target' : {"@id": r['@id']}, 'writeable' : false});
+              };})
+              project.release_set.forEach((r,i)=>{if(r['@id']==project.target['@id']){
+                stateName.forEach((s,i)=>colElt.push({'name': s,'filter':`[data-state=\'${i}\']`, 'target' : {"@id": r['@id']}, 'writeable' : true}));
+              };})
+              project.release_set.forEach((r,i)=>{if((!r.done)&&(r['@id']!=project.target['@id'])){
+                colElt.push({'name': r.name,'filter':'', 'target' : {"@id": r['@id']}, 'writeable' : true});
+              };})
+              colElt.forEach((listObj,i) => {
+                  content +=
+                  `<div class="liste">
+                  <h4 class="nameLot">${listObj.name}</h4>
+                  <div class="listeContent">
+                  <content select="[data-target='${listObj.target['@id']}']${listObj.filter}"></content>
+                  </div>`;
+                  if(listObj.writeable){content +=
+                    `<div>
+                    <span class="showFormTask" data-form="${i}">Ajouter une tâche</span>
+                    </div>`}
+                  content += `</div>`;
+                  // remove the fields writable and filter
+                  delete listObj.writeable;
+                  delete listObj.filter;
+                }
+              );
+              clone.querySelector('#kanban').innerHTML = content;
+              this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
+              // click to show the form to append a task
+              this.shadowRoot.querySelectorAll('.showFormTask').forEach(e=>e.addEventListener('click', c => {
                 var formAddTask = document.createElement('form');
                 formAddTask.setAttribute('style','height:60px;');
                 e.parentNode.appendChild(formAddTask);
                 $(e)[0].hidden = true;
                 // console.dir($(e)[0]);
                 formAddTask.innerHTML = `<textarea type="text" name="title" class="titleForm"></textarea><br>
-                            <input type="hidden" name="author" value="http://pp.projects.openinitiative.com/user/ldpcontainer/601">
-                            <input type="hidden" name="target" value="${colElt[e.dataset.form].target['@id']}" class="targetForm">
-                            <input type="hidden" name="state" value="${colElt[e.dataset.form].state || 0}" class="stateForm">
-                            <input type="submit" value="Créer" class="submitForm">
-                            <input type="button" value="Fermer" class="resetForm">`;
+                <input type="hidden" name="author" value="http://pp.projects.openinitiative.com/user/ldpcontainer/601">
+                <input type="hidden" name="target" value="${colElt[e.dataset.form].target['@id']}" class="targetForm">
+                <input type="hidden" name="state" value="${colElt[e.dataset.form].state || 0}" class="stateForm">
+                <input type="image" name="submit" src="../../images/ok.svg" border="0" alt="Submit" class="submitForm"/>
+                <input type="image" src="../../images/cancel.svg" border="0" alt="reset" class="resetForm"/>`;
                 e.nextElementSibling.querySelector('.submitForm').addEventListener('click', a=>{
-                    event.preventDefault(); //bloc function submit as HTML
-                    var newProject = {"@context" : "http://owl.openinitiative.com/oicontext.jsonld" , 'target' : {'@id' : ''}}
-                    JSON.parse(JSON.stringify($(e.nextElementSibling).serializeArray())).forEach(d => {
-                        if(d.name =='target'){
-                            newProject['target']['@id'] = d.value;
-                        } else {
-                            newProject[d.name] = d.value;
-                        }
-                    });
-                    // console.log(newProject);
-                    store.save(newProject).then(project=>{
-                        // console.log(project['@graph'][0]['@id']);
-                        var newTask =  document.createElement('oi-task');
-                        newTask.dataset.src="http://pp.projects.openinitiative.com/project/ldpcontainer/" + project['@graph'][0]['@id'];
-                        this.appendChild(newTask);
+                  event.preventDefault(); //bloc function submit as HTML
+                  var newProject = {"@context" : "http://owl.openinitiative.com/oicontext.jsonld" , 'target' : {'@id' : ''}}
+                  JSON.parse(JSON.stringify($(e.nextElementSibling).serializeArray())).forEach(d => {
+                    if(d.name =='target'){
+                      newProject['target']['@id'] = d.value;
+                    } else {
+                      newProject[d.name] = d.value;
+                    }
+                  });
+                  // console.log(newProject);
+                  store.save(newProject).then(project=>{
+                    // console.log(project['@graph'][0]['@id']);
+                    var newTask =  document.createElement('oi-task');
+                    newTask.dataset.src="http://pp.projects.openinitiative.com/project/ldpcontainer/" + project['@graph'][0]['@id'];
+                    this.appendChild(newTask);
 
-                    })
-                    e.nextElementSibling.querySelector('.titleForm').value = '';
+                  })
+                  e.nextElementSibling.querySelector('.titleForm').value = '';
                 });
                 //click to cancel appending task
                 e.nextElementSibling.querySelector('.resetForm').addEventListener('click', a=>{
-                    e.parentNode.removeChild(e.nextElementSibling);
-                    $(e)[0].hidden = false;
+                  e.parentNode.removeChild(e.nextElementSibling);
+                  $(e)[0].hidden = false;
                 });
 
-            }));
+              }));
+            });
+
 
             //writting data when the task change of column
             $(this).sortable({stop: function(event, ui){
@@ -214,6 +229,9 @@
             store.get(uri).then(project=>{
                 //creation of sub-title
                 this.shadowRoot.querySelector('.stitre').innerHTML = `Project : ${project.title} , Url : ${project['@id']}`;
+
+
+
                 project.descendants.forEach(function(task, index){
                     var newTask =  document.createElement('oi-task');
                     newTask.dataset.src=task['@id'];

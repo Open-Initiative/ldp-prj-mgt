@@ -84,7 +84,7 @@
     </style>
     <h1>Tableau des tâches du projet</h1>
     <h3 class="stitre"></h3>
-    <img src="../../images/add.svg" class="showFormTask" >
+    <img src="../../images/add.svg" class="show-form-task" >
     <div class="formAddTask">
         <label>Tâche<br><input type="text" name="title" class="titleForm"></label><br>
         <input type="hidden" name="author" value="http://pp.projects.openinitiative.com/user/ldpcontainer/601">
@@ -145,7 +145,7 @@
                         tableHeader.innerHTML = content;
 
                         // click to show the form to append a task
-                        this.shadowRoot.querySelector('.showFormTask').addEventListener('click', c => {
+                        this.shadowRoot.querySelector('.show-form-task').addEventListener('click', c => {
                           this.shadowRoot.querySelector('.formAddTask').style.display = 'block';
                         });
 
@@ -153,8 +153,9 @@
                         this.shadowRoot.querySelector('.submitForm').addEventListener('click', c => {
                             event.preventDefault(); //bloc function submit as HTML
                             var newProject = {"@context" : "http://owl.openinitiative.com/oicontext.jsonld" , 'target' : {'@id' : ''}}
-                            console.log($('.formAddTask'))
-                            // JSON.parse(JSON.stringify($(e.nextElementSibling).serializeArray())).forEach(d => {
+                            console.log(this.shadowRoot.querySelector('.formAddTask'));
+
+                            // JSON.parse(JSON.stringify($(this.shadowRootà.findquerySelector('.formAddTask')).serializeArray())).forEach(d => {
                             //     if(d.name =='target'){
                             //         newProject['target']['@id'] = d.value;
                             //     } else {
@@ -169,7 +170,7 @@
                             //     this.appendChild(newTask);
                             //
                             // })
-                            // e.nextElementSibling.querySelector('.titleForm').value = '';
+                            this.shadowRoot.querySelector('.titleForm').value = '';
                         });
 
                         // click to hide the form to append a task
