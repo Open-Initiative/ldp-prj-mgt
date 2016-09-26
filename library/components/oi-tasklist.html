@@ -35,18 +35,18 @@
             color: #000;
             padding: 0;
         }
+        ::content oi-task{
+          display:inline-table;
+          width:100%;
+          background-color: #eee;
+          color: #000;
+          padding: 0;
+        }
         oi-task span{
             display:inline-block;
             background-color: #eee;
             margin:0;
             overflow: hidden;
-        }
-        ::content oi-task{
-            display:inline-table;
-            width:100%;
-            background-color: #eee;
-            color: #000;
-            padding: 0;
         }
         ::content oi-task span{
             display:inline-block;
@@ -61,6 +61,9 @@
             width:5%;
         }
         .author, .comment{
+            width:15%;
+        }
+        ::content .author, ::content .comment{
             width:15%;
         }
         .title {
@@ -89,16 +92,11 @@
         <label>Tâche<br><input type="text" name="title" class="titleForm"></label><br>
         <input type="hidden" name="author" value="http://pp.projects.openinitiative.com/user/ldpcontainer/601">
         <label>lot<br>
-          <select name="target" class="targetForm" class="targetForm">
-            <option value="http://pp.projects.openinitiative.com/release/ldpcontainer/45">lot1</option>
-            <option value="http://pp.projects.openinitiative.com/release/ldpcontainer/46">lot2</option>
-            <option value="http://pp.projects.openinitiative.com/release/ldpcontainer/47">lot3</option>
-            <option value="http://pp.projects.openinitiative.com/release/ldpcontainer/48">lot4</option>
-            <option value="http://pp.projects.openinitiative.com/release/ldpcontainer/49">lot5</option>
+          <select name="target" class="targetForm">
           </select>
         </label><br>
         <label>Etat<br>
-          <select name="state" class="stateForm" class="stateForm">
+          <select name="state" class="stateForm">
             <option value="0">Proposé</option>
             <option value="1">Accepté</option>
             <option value="2">Démarré</option>
@@ -127,6 +125,15 @@
 
                     store.get(this.dataset.src).then(project=>{
                         console.log(project);
+                        console.log(this.shadowRoot.children);
+                        var content= '';
+                        //reading of targets in this project
+                        project.release_set.forEach(function(target, index){
+                          target.name = (target.name==undefined)?project.target.name:target.name;
+                          if(!target.done){content +=`<option value="${target['@id']}">${target.name}</option>`;}
+                        }.bind(this));
+                        this.shadowRoot.children[4].querySelector('.targetForm').innerHTML = content;
+
                         project.descendants.forEach(function(task, index){
                             var newTask =  document.createElement('oi-task');
                             newTask.dataset.src=task['@id'];

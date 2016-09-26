@@ -47,6 +47,7 @@
 
                             //click to modifie a task
                             $(this).children('span').click(t => {
+                                console.log(t);
                                 $('oi-task form').attr('style','display:none;');
                                 $('oi-task span').attr('style',initialDisplay);
                                 this.querySelector('form').setAttribute('style',initialDisplay);
