@@ -39,15 +39,38 @@
                             form.setAttribute('style','display:none;');
                             var formNode = this.appendChild(form);
                             formNode.innerHTML = `<textarea name="title" class="titleForm">${$(this).children('.title')[0].innerText}</textarea>
-                                        <input type="hidden" name="@id" value="${this.dataset.id}" class="targetForm">
-                                        <input type="hidden" name="target" value="${this.dataset.target}" class="targetForm">
-                                        <input type="hidden" name="state" value="${this.dataset.state}" class="stateForm">
+                                        <input type="hidden" name="@id" value="${this.dataset.id}" class="idForm">
+                                        <input type="text" name="target" value="${this.dataset.target}" class="targetForm">
+                                        <select name="state" class="stateForm">
+                                          <option value="0" ${this.dataset.state==0?'selected':''}>Proposé</option>
+                                          <option value="1" ${this.dataset.state==1?'selected':''}>Accepté</option>
+                                          <option value="2" ${this.dataset.state==2?'selected':''}>Démarré</option>
+                                          <option value="3" ${this.dataset.state==3?'selected':''}>Livré</option>
+                                          <option value="4" ${this.dataset.state==4?'selected':''}>Validé</option>
+                                        </select>
                                         <input type="image" name="submit" src="../../images/ok.svg" border="0" alt="Submit" class="submitForm"/>
                                         <input type="image" src="../../images/cancel.svg" border="0" alt="reset" class="resetForm"/>`;
 
                             //click to modifie a task
                             $(this).children('span').click(t => {
                                 console.log(t);
+                                console.log(t.target.className);
+                                if(t.target.className == 'target'){
+                                  $('oi-task .targetForm').attr('style','display:block;');
+                                  $('oi-task .titleForm').attr('style','display:none;');
+                                  $('oi-task .stateForm').attr('style','display:none;');
+                                }
+                                if(t.target.className == 'title'){
+                                  $('oi-task .targetForm').attr('style','display:none;');
+                                  $('oi-task .titleForm').attr('style','display:block;');
+                                  $('oi-task .stateForm').attr('style','display:none;');
+                                };
+                                if(t.target.className == 'state'){
+                                  $('oi-task .targetForm').attr('style','display:none;');
+                                  $('oi-task .titleForm').attr('style','display:none;');
+                                  $('oi-task .stateForm').attr('style','display:block;');
+                                };
+                                // if(t.target.className == 'target'){$(t.target).attr('style','display:none;')};
                                 $('oi-task form').attr('style','display:none;');
                                 $('oi-task span').attr('style',initialDisplay);
                                 this.querySelector('form').setAttribute('style',initialDisplay);

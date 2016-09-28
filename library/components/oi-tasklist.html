@@ -112,7 +112,6 @@
 </template>
 
 <script type="text/javascript" src="http://cdn.happy-dev.fr/LDP-framework/ldpframework.js"></script>
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script>
     (function(){
         var localDoc = document._currentScript.ownerDocument;
@@ -153,7 +152,7 @@
 
                         // click to show the form to append a task
                         this.shadowRoot.querySelector('.show-form-task').addEventListener('click', c => {
-                          this.shadowRoot.querySelector('.formAddTask').style.display = 'block';
+                          this.shadowRoot.querySelector('.formAddTask').style.display = (this.shadowRoot.querySelector('.formAddTask').style.display == 'block')?'none':'block';
                         });
 
                         // click to append a task
@@ -161,22 +160,17 @@
                             event.preventDefault(); //bloc function submit as HTML
                             var newProject = {"@context" : "http://owl.openinitiative.com/oicontext.jsonld" , 'target' : {'@id' : ''}}
                             console.log(this.shadowRoot.querySelector('.formAddTask'));
+                            newProject.title = this.shadowRoot.querySelector('.titleForm').value;
+                            newProject.target['@id'] = this.shadowRoot.querySelector('.targetForm').value;
+                            newProject.state = this.shadowRoot.querySelector('.stateForm').value;
+                            console.dir(newProject);
+                            store.save(newProject).then(project=>{
+                                // console.log(project['@graph'][0]['@id']);
+                                var newTask =  document.createElement('oi-task');
+                                newTask.dataset.src="http://pp.projects.openinitiative.com/project/ldpcontainer/" + project['@graph'][0]['@id'];
+                                this.appendChild(newTask);
 
-                            // JSON.parse(JSON.stringify($(this.shadowRootà.findquerySelector('.formAddTask')).serializeArray())).forEach(d => {
-                            //     if(d.name =='target'){
-                            //         newProject['target']['@id'] = d.value;
-                            //     } else {
-                            //         newProject[d.name] = d.value;
-                            //     }
-                            // });
-                            // // console.log(newProject);
-                            // store.save(newProject).then(project=>{
-                            //     // console.log(project['@graph'][0]['@id']);
-                            //     var newTask =  document.createElement('oi-task');
-                            //     newTask.dataset.src="http://pp.projects.openinitiative.com/project/ldpcontainer/" + project['@graph'][0]['@id'];
-                            //     this.appendChild(newTask);
-                            //
-                            // })
+                            })
                             this.shadowRoot.querySelector('.titleForm').value = '';
                         });
 
