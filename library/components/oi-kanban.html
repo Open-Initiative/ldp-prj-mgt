@@ -31,6 +31,21 @@
         overflow-y: auto;
     }
     /* ::content is for the compatibility fireFox Chrome */
+    ::content .liste {
+        display:inline-block;
+        width:250px;
+        padding: 0 0;
+        border: solid 1px #fff;
+        background-color: #fc0;
+        color: #fff;
+        vertical-align: text-top;
+        overflow-y: hidden;
+
+    }
+    ::content .listeContent {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
     ::content oi-task {
         display: block;
         background-color: #fff;
@@ -50,18 +65,19 @@
         font-weight: bold;
     }
     oi-task {
-        display: inline-block;
+        display: block;
         background-color: #fff;
         color:#000;
         list-style-type: none;
         margin: 2px 4px;
+        overflow-y: auto;
+        width: 97%;
     }
     oi-task span {
         display: block;
         background-color: #fff;
         color:#000;
         list-style-type: none;
-        width: 100%;
     }
     oi-task .title {
         font-weight: bold;
@@ -101,6 +117,14 @@
     .title, .target, .showFormTask{
       font-size: 0.8em;
     }
+    ::content button {
+        border: none;
+        background: none;
+    }
+    button {
+        border: none;
+        background: none;
+    }
 </style>
 <div class="pageHeader">
     <h3 class="stitre"></h3>
@@ -108,11 +132,27 @@
 <div class="surface">
     <div class="pageContent">
         <div class="board">
-            <content select="[data-target='']"></content> <!-- To show before the table the tasks witch not have target -->
             <div id="kanban"></div>
         </div>
     </div>
 </div>
+</template>
+<template id='template-column'>
+    <div class="liste">
+        <h4 class="nameTarget"></h4>
+        <div class="listeContent">
+            <content></content>
+        </div>
+    </div>
+</template>
+<template id='enable-add'>
+    <span class="show-form-task" data-form="${i}">Ajouter une tâche</span>
+    <form class="form-add-task" style="display:none;">
+        <textarea type="text" name="title" class="title_form"></textarea><br>
+        <button type="submit"><img src="../../images/ok.svg" alt="submit"></button>
+        <button type="reset"><img src="../../images/cancel.svg" alt="cancel"></button>
+
+    </form>
 </template>
 <script type="text/javascript" src="http://cdn.happy-dev.fr/LDP-framework/ldpframework.js"></script>
 <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
@@ -125,102 +165,68 @@
 
         var taskListPrototype = Object.create(HTMLElement.prototype, {
     			createdCallback: {
-                    value: function() {
-                        this.setColumns(this.dataset.src);
-                        if(this.dataset.src){this.setContainer(this.dataset.src)};
-                    }
-                },
-                attributeChangedCallback: {
-                    value: function(attrName, oldVal, newVal) {
-                        if(attrName == 'data-src'){
-                            this.setContainer(newVal);
-                        }
-                    }
-                }
-    		});
+              value: function() {
+                  if(this.dataset.src)this.setContainer(this.dataset.src);
+              }
+          },
+          attributeChangedCallback: {
+              value: function(attrName, oldVal, newVal) {
+                  if(attrName == 'data-src'){
+                      if(newVal) this.setContainer(newVal);
+                  }
+              }
+          }
+    	});
 
         //create the background of kanban
-      taskListPrototype.setColumns = function(uri) {
+        taskListPrototype.setColumns = function(release_set, target) {
             var clone = document.importNode(localDoc.querySelector('#task-head').content, true);
-            var content = '';
             var statelist = ['Proposé','Accepté','Demarré','Livré','Validé'];
-            var columns = [];
-
-            store.container = uri;
-            store.get(uri).then(project=>{
-              var past=[], current=[], future=[];
-              project.release_set.forEach((release, i) => {
-                if(release['@id']==project.target['@id']) //current release
-                  statelist.map((state, i)=>current.push({'name': state,'filter':`[data-state=\'${i}\']`, 'target' : {"@id": release['@id']},'state': i.toString(), 'writeable' : true}));
+            var columns = [], past=[], current=[], future=[];
+            release_set.forEach((release, i) => {
+                if(release['@id']==target['@id']) //current release
+                    statelist.map((state, i)=>current.push({'name': state, 'target' : {"@id": release['@id']},'state': i.toString(), 'writeable' : true}));
                 else
-                  if(release.done)
-                    past.push({'name': release.name,'filter':'', 'target' : {"@id": release['@id']}, 'writeable' : false});
-                  else
-                    future.push({'name': release.name,'filter':'', 'target' : {"@id": release['@id']}, 'writeable' : true});
-              });
-              columns = past.concat(current, future);
-              columns.forEach((column, i) => {
-                  content +=
-                  `<div class="liste">
-                  <h4 class="nameLot">${column.name}</h4>
-                  <div class="listeContent">
-                  <content select="[data-target='${column.target['@id']}']${column.filter}"></content>
-                  </div>`;
-                  if(column.writeable){content +=
-                    `<div>
-                    <span class="showFormTask" data-form="${i}">Ajouter une tâche</span>
-                    </div>`}
-                  content += `</div>`;
-                  // remove the fields writable and filter
-                  delete column.filter;
-                }
-              );
-              clone.querySelector('#kanban').innerHTML = content;
-              this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
-              // click to show the form to append a task
-              this.shadowRoot.querySelectorAll('.showFormTask').forEach(e=>e.addEventListener('click', c => {
-                var formAddTask = document.createElement('form');
-                formAddTask.setAttribute('style','height:83px;');
-                e.parentNode.appendChild(formAddTask);
-                $(e)[0].hidden = true;
-                // console.dir($(e)[0]);
-                formAddTask.innerHTML = `<textarea type="text" name="title" class="titleForm"></textarea><br>
-                <input type="hidden" name="author" value="http://pp.projects.openinitiative.com/user/ldpcontainer/601">
-                <input type="hidden" name="target" value="${columns[e.dataset.form].target['@id']}" class="targetForm">
-                <input type="hidden" name="state" value="${columns[e.dataset.form].state || 0}" class="stateForm">
-                <input type="image" name="submit" src="../../images/ok.svg" border="0" alt="Submit" class="submitForm"/>
-                <input type="image" src="../../images/cancel.svg" border="0" alt="reset" class="resetForm"/>`;
-                e.nextElementSibling.querySelector('.submitForm').addEventListener('click', a=>{
-                  event.preventDefault(); //bloc function submit as HTML
-                  var newProject = {"@context" : "http://owl.openinitiative.com/oicontext.jsonld" , 'target' : {'@id' : ''}}
-                  JSON.parse(JSON.stringify($(e.nextElementSibling).serializeArray())).forEach(d => {
-                    if(d.name =='target'){
-                      newProject['target']['@id'] = d.value;
-                    } else {
-                      newProject[d.name] = d.value;
-                    }
-                  });
-                  // console.log(newProject);
-                  store.save(newProject).then(project=>{
-                    // console.log(project['@graph'][0]['@id']);
-                    var newTask =  document.createElement('oi-task');
-                    newTask.dataset.src="http://pp.projects.openinitiative.com/project/ldpcontainer/" + project['@graph'][0]['@id'];
-                    this.appendChild(newTask);
-
-                  })
-                  e.nextElementSibling.querySelector('.titleForm').value = '';
-                });
-                //click to cancel appending task
-                e.nextElementSibling.querySelector('.resetForm').addEventListener('click', a=>{
-                  e.parentNode.removeChild(e.nextElementSibling);
-                  $(e)[0].hidden = false;
-                });
-
-              }));
+                    if(release.done)
+                        past.push({'name': release.name, 'target' : {"@id": release['@id']}, 'writeable' : false});
+                    else
+                        future.push({'name': release.name, 'target' : {"@id": release['@id']}, 'writeable' : true});
             });
-
-
+            columns = past.concat(current, future);
+            columns.forEach((column, i) => {
+                var nodeColumn = document.importNode(localDoc.querySelector('#template-column').content, true);
+                nodeColumn.querySelector('.nameTarget').innerText = column.name;
+                var filter = (column.target['@id']==target['@id'])?`[data-state=\'${column.state}\']`:``;
+                nodeColumn.querySelector('content').setAttribute('select',`[data-target=\'${column.target['@id']}\']${filter}`);
+                console.dir(nodeColumn.querySelector('content'));
+                if(column.writeable){
+                    nodeColumn.lastElementChild.appendChild(document.importNode(localDoc.querySelector('#enable-add').content, true));
+                    nodeColumn.querySelector('.show-form-task').addEventListener('click', (event) => {
+                        event.target.parentElement.querySelector('.form-add-task').setAttribute('style','display:block;')
+                    });
+                    nodeColumn.querySelector('.form-add-task').addEventListener('submit', (event) => {
+                        event.preventDefault(); //bloc function submit as HTML
+                        var newTask = {'title':event.target.querySelector('.title_form').value,'state':column.state||'0','target':column.target,"@context": "http://owl.openinitiative.com/oicontext.jsonld"}
+                        console.log(event.target.querySelector('.title_form').value);
+                        console.log(newTask);
+                        store.save(newTask).then(project=>{
+                            // console.log(project['@graph'][0]['@id']);
+                            var taskElt =  document.createElement('oi-task');
+                            //TODO  fix problem or url absolut/relative
+                            taskElt.dataset.src="http://pp.projects.openinitiative.com/project/ldpcontainer/" + project['@graph'][0]['@id'];
+                            this.appendChild(taskElt);
+                        });
+                        event.target.querySelector('.title_form').value = '';
+                    });
+                    nodeColumn.querySelector('.form-add-task').addEventListener('reset', (event) => {
+                        event.target.setAttribute('style','display:none;')
+                    });
+                }
+                clone.querySelector('#kanban').appendChild(nodeColumn);
+            });
+            this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
             //writting data when the task change of column
+            console.log('ligne230');
             $(this).sortable({stop: function(event, ui){
               var columnPositions = Array.prototype.map.call(this.shadowRoot.querySelectorAll(".liste"), list => list.offsetLeft);
               var colId = columnPositions.filter(x=>(event.clientX+this.shadowRoot.querySelector('.surface').scrollLeft)>x).length - 1;
@@ -230,29 +236,27 @@
                 store.get(event.toElement.parentNode.dataset.src).then(task => {
                   store.save(Object.assign(task, columns[colId]))
                 });
-              } else {alert('Cette release est close.')};
-
+              } else {
+                alert('Cette release est close.');
+              };
             }});
-
         };
 
         //modifie the content of the kanban
         taskListPrototype.setContainer = function(uri) {
             // console.log(this.attributes['data-scr'].value);
-            // console.log(this.dataset.src);
             store.container = uri;
             store.get(uri).then(project=>{
+                console.dir(project);
                 //creation of sub-title
+                this.setColumns(project.release_set, project.target);
+                console.log(this.shadowRoot);
                 this.shadowRoot.querySelector('.stitre').innerHTML = `Project : ${project.title} , Url : ${project['@id']}`;
-
-
-
                 project.descendants.forEach(function(task, index){
                     var newTask =  document.createElement('oi-task');
                     newTask.dataset.src=task['@id'];
                     this.appendChild(newTask);
                 }.bind(this));
-
             });
         };
         document.registerElement('oi-kanban',{prototype: taskListPrototype});

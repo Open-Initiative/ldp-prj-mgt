@@ -15,6 +15,9 @@
 			attributeChangedCallback: {
 
                 value: function(attribute) {
+                    if(attribute== 'data-target' && this.dataset.target){
+                      // console.log(this.querySelector('.target'));
+                    };
                     //test if data is available
                     if(attribute== 'data-src' && this.dataset.src){
                         // console.dir(this.dataset.scr);
@@ -53,23 +56,25 @@
 
                             //click to modifie a task
                             $(this).children('span').click(t => {
-                                console.log(t);
-                                console.log(t.target.className);
-                                if(t.target.className == 'target'){
-                                  $('oi-task .targetForm').attr('style','display:block;');
-                                  $('oi-task .titleForm').attr('style','display:none;');
-                                  $('oi-task .stateForm').attr('style','display:none;');
-                                }
-                                if(t.target.className == 'title'){
-                                  $('oi-task .targetForm').attr('style','display:none;');
-                                  $('oi-task .titleForm').attr('style','display:block;');
-                                  $('oi-task .stateForm').attr('style','display:none;');
-                                };
-                                if(t.target.className == 'state'){
-                                  $('oi-task .targetForm').attr('style','display:none;');
-                                  $('oi-task .titleForm').attr('style','display:none;');
-                                  $('oi-task .stateForm').attr('style','display:block;');
-                                };
+                                // console.log(t);
+                                // console.log(t.target.className);
+                                $('oi-task form').hide();
+                                $(`oi-task .${t.target.className}Form`).show();
+                                // if(t.target.className == 'target'){
+                                //   $('oi-task .targetForm').attr('style','display:block;');
+                                //   $('oi-task .titleForm').attr('style','display:none;');
+                                //   $('oi-task .stateForm').attr('style','display:none;');
+                                // }
+                                // if(t.target.className == 'title'){
+                                //   $('oi-task .targetForm').attr('style','display:none;');
+                                //   $('oi-task .titleForm').attr('style','display:block;');
+                                //   $('oi-task .stateForm').attr('style','display:none;');
+                                // };
+                                // if(t.target.className == 'state'){
+                                //   $('oi-task .targetForm').attr('style','display:none;');
+                                //   $('oi-task .titleForm').attr('style','display:none;');
+                                //   $('oi-task .stateForm').attr('style','display:block;');
+                                // };
                                 // if(t.target.className == 'target'){$(t.target).attr('style','display:none;')};
                                 $('oi-task form').attr('style','display:none;');
                                 $('oi-task span').attr('style',initialDisplay);
