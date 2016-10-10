@@ -135,7 +135,7 @@
 
                         project.descendants.forEach(function(task, index){
                             var newTask =  document.createElement('oi-task');
-                            newTask.dataset.src=task['@id'];
+                            newTask.setAttribute('data-src', task['@id']);
                             this.appendChild(newTask);
                         }.bind(this));
 
@@ -167,7 +167,7 @@
                             store.save(newProject).then(project=>{
                                 // console.log(project['@graph'][0]['@id']);
                                 var newTask =  document.createElement('oi-task');
-                                newTask.dataset.src="http://pp.projects.openinitiative.com/project/ldpcontainer/" + project['@graph'][0]['@id'];
+                                newTask.setAttribute('data-src', "http://pp.projects.openinitiative.com/project/ldpcontainer/" + project['@graph'][0]['@id']);
                                 this.appendChild(newTask);
 
                             })

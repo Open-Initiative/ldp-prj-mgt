@@ -1,5 +1,5 @@
 <template id="task-head">
-<style>
+<style scoped>
     *{
         box-sizing: border-box;
     }
@@ -136,6 +136,7 @@
         </div>
     </div>
 </div>
+<content></content>
 </template>
 <template id='template-column'>
     <div class="liste">
@@ -161,10 +162,10 @@
 <script>
     (function(){
         var localDoc = document._currentScript.ownerDocument;
-        var store = new MyStore({context: "http://owl.openinitiative.com/oicontext.jsonld", defaultSerializer: 'application/ld+json'});
+        window.store = new MyStore({context: "http://owl.openinitiative.com/oicontext.jsonld", defaultSerializer: 'application/ld+json'});
 
         var taskListPrototype = Object.create(HTMLElement.prototype, {
-    			createdCallback: {
+    		createdCallback: {
               value: function() {
                   if(this.dataset.src)this.setContainer(this.dataset.src);
               }
@@ -194,39 +195,35 @@
             });
             columns = past.concat(current, future);
             columns.forEach((column, i) => {
-                var nodeColumn = document.importNode(localDoc.querySelector('#template-column').content, true);
-                nodeColumn.querySelector('.nameTarget').innerText = column.name;
+                var columnElt = document.importNode(localDoc.querySelector('#template-column').content, true);
+                columnElt.querySelector('.nameTarget').innerText = column.name;
                 var filter = (column.target['@id']==target['@id'])?`[data-state=\'${column.state}\']`:``;
-                nodeColumn.querySelector('content').setAttribute('select',`[data-target=\'${column.target['@id']}\']${filter}`);
-                console.dir(nodeColumn.querySelector('content'));
+                columnElt.querySelector('content').setAttribute('select',`[data-target=\'${column.target['@id']}\']${filter}`);
                 if(column.writeable){
-                    nodeColumn.lastElementChild.appendChild(document.importNode(localDoc.querySelector('#enable-add').content, true));
-                    nodeColumn.querySelector('.show-form-task').addEventListener('click', (event) => {
+                    columnElt.lastElementChild.appendChild(document.importNode(localDoc.querySelector('#enable-add').content, true));
+                    columnElt.querySelector('.show-form-task').addEventListener('click', (event) => {
                         event.target.parentElement.querySelector('.form-add-task').setAttribute('style','display:block;')
                     });
-                    nodeColumn.querySelector('.form-add-task').addEventListener('submit', (event) => {
+                    columnElt.querySelector('.form-add-task').addEventListener('submit', (event) => {
                         event.preventDefault(); //bloc function submit as HTML
-                        var newTask = {'title':event.target.querySelector('.title_form').value,'state':column.state||'0','target':column.target,"@context": "http://owl.openinitiative.com/oicontext.jsonld"}
-                        console.log(event.target.querySelector('.title_form').value);
-                        console.log(newTask);
+                        var newTask = {'title':event.target.querySelector('.title_form').value,'state':column.state||'0','target':column.target};
                         store.save(newTask).then(project=>{
-                            // console.log(project['@graph'][0]['@id']);
                             var taskElt =  document.createElement('oi-task');
                             //TODO  fix problem or url absolut/relative
-                            taskElt.dataset.src="http://pp.projects.openinitiative.com/project/ldpcontainer/" + project['@graph'][0]['@id'];
+                            taskElt.setAttribute("data-src","http://pp.projects.openinitiative.com/project/ldpcontainer/" + project['@graph'][0]['@id']);
                             this.appendChild(taskElt);
                         });
                         event.target.querySelector('.title_form').value = '';
                     });
-                    nodeColumn.querySelector('.form-add-task').addEventListener('reset', (event) => {
+                    columnElt.querySelector('.form-add-task').addEventListener('reset', (event) => {
                         event.target.setAttribute('style','display:none;')
                     });
                 }
-                clone.querySelector('#kanban').appendChild(nodeColumn);
+                clone.querySelector('#kanban').appendChild(columnElt);
             });
+
             this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
             //writting data when the task change of column
-            console.log('ligne230');
             $(this).sortable({stop: function(event, ui){
               var columnPositions = Array.prototype.map.call(this.shadowRoot.querySelectorAll(".liste"), list => list.offsetLeft);
               var colId = columnPositions.filter(x=>(event.clientX+this.shadowRoot.querySelector('.surface').scrollLeft)>x).length - 1;
@@ -244,18 +241,15 @@
 
         //modifie the content of the kanban
         taskListPrototype.setContainer = function(uri) {
-            // console.log(this.attributes['data-scr'].value);
             store.container = uri;
             store.get(uri).then(project=>{
-                console.dir(project);
                 //creation of sub-title
                 this.setColumns(project.release_set, project.target);
-                console.log(this.shadowRoot);
                 this.shadowRoot.querySelector('.stitre').innerHTML = `Project : ${project.title} , Url : ${project['@id']}`;
                 project.descendants.forEach(function(task, index){
-                    var newTask =  document.createElement('oi-task');
-                    newTask.dataset.src=task['@id'];
-                    this.appendChild(newTask);
+                    var taskElt =  document.createElement('oi-task');
+                    taskElt.setAttribute("data-src",task['@id']);
+                    this.appendChild(taskElt);
                 }.bind(this));
             });
         };
