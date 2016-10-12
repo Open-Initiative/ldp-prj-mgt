@@ -2,7 +2,7 @@
     box-sizing: border-box;
 }
 body {
-    margin: 1vh 5vw;
+    margin: 1vh 1vw;
     font-family: HelveticaNeue, arial, helvetica, clean, sans-serif;
     background: url("../images/bg.png") no-repeat top right;
 }

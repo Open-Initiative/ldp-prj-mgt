@@ -98,15 +98,18 @@
         display:inline-block;
         width:40px;
     }
-    .showFormTask:hover {
+    ::content .show_form_task:hover {
         cursor: pointer;
     }
-    ::content .titleForm {
+    .show_form_task:hover {
+        cursor: pointer;
+    }
+    ::content .title_form {
         width:220px;
         height:60px;
         font-size: 0.8em;
     }
-    .titleForm {
+    .title_form {
         width:220px;
         height:60px;
         font-size: 0.8em;
@@ -114,7 +117,7 @@
     ::content .title, ::content .target{
       font-size: 0.8em;
     }
-    .title, .target, .showFormTask{
+    .title, .target, .show_form_task{
       font-size: 0.8em;
     }
     ::content button {
@@ -125,9 +128,16 @@
         border: none;
         background: none;
     }
+    .row_right {
+        float: right;
+    }
+    ::content .row_right {
+        float: right;
+    }
 </style>
 <div class="pageHeader">
     <h3 class="stitre"></h3>
+    <img src="../../images/row-r.svg" alt="row right" class="row_right">
 </div>
 <a href="./index.html">Accès à la liste de tâches</a><br>
 <div class="surface">
@@ -148,7 +158,7 @@
     </div>
 </template>
 <template id='enable-add'>
-    <span class="show-form-task" data-form="${i}">Ajouter une tâche</span>
+    <span class="show_form_task" data-form="${i}">Ajouter une tâche</span>
     <form class="form-add-task" style="display:none;">
         <textarea type="text" name="title" class="title_form"></textarea><br>
         <button type="submit"><img src="../../images/ok.svg" alt="submit"></button>
@@ -202,7 +212,7 @@
                 columnElt.querySelector('content').setAttribute('select',`[data-target=\'${column.target['@id']}\']${filter}`);
                 if(column.writeable){
                     columnElt.lastElementChild.appendChild(document.importNode(localDoc.querySelector('#enable-add').content, true));
-                    columnElt.querySelector('.show-form-task').addEventListener('click', (event) => {
+                    columnElt.querySelector('.show_form_task').addEventListener('click', (event) => {
                         event.target.parentElement.querySelector('.form-add-task').setAttribute('style','display:block;')
                     });
                     columnElt.querySelector('.form-add-task').addEventListener('submit', (event) => {
@@ -238,6 +248,14 @@
                 alert('Cette release est close.');
               };
             }});
+            //detection of scroll to hide the row when we are at right
+            this.shadowRoot.querySelector('.surface').onscroll = function(event){
+                if((this.querySelector('#kanban').clientWidth - window.innerWidth - event.target.scrollLeft) < 300){
+                    event.path[1].querySelector('.row_right').style.visibility = 'hidden';
+                }else{
+                    event.path[1].querySelector('.row_right').style.visibility = 'visible';
+                }
+            }
         };
 
         //modifie the content of the kanban
