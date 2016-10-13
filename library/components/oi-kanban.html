@@ -9,7 +9,7 @@
         overflow-x: scroll;
         overflow-y: auto;
     }
-    h1, h3 , a {
+    h1, h3 , a , .option{
         color: #CCC;
     }
     .board {
@@ -94,10 +94,6 @@
         padding-left: 0px;
         float: left;
     }
-    label{
-        display:inline-block;
-        width:40px;
-    }
     ::content .show_form_task:hover {
         cursor: pointer;
     }
@@ -128,16 +124,25 @@
         border: none;
         background: none;
     }
-    .row_right {
+    .row_right, .show-option {
         float: right;
     }
-    ::content .row_right {
+    ::content .row_right,::content .show-option {
         float: right;
+    }
+    .option{
+        visibility: hidden;
     }
 </style>
 <div class="pageHeader">
     <h3 class="stitre"></h3>
     <img src="../../images/row-r.svg" alt="row right" class="row_right">
+    <img src="../../images/option.svg" alt="option" class="show-option">
+    <div class="option">
+        <label><input type="checkbox" id="version-before" value="before" checked class="option-checkbox"> Versions précédentes</label>
+        <label><input type="checkbox" id="version-current" value="current" checked class="option-checkbox"> Version courrante</label>
+        <label><input type="checkbox" id="version-future" value="future" checked class="option-checkbox"> Versions future</label>
+    </div>
 </div>
 <a href="./index.html">Accès à la liste de tâches</a><br>
 <div class="surface">
@@ -232,7 +237,6 @@
                 }
                 clone.querySelector('#kanban').appendChild(columnElt);
             });
-
             this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
             //writting data when the task change of column
             $(this).sortable({stop: function(event, ui){
@@ -251,11 +255,25 @@
             //detection of scroll to hide the row when we are at right
             this.shadowRoot.querySelector('.surface').onscroll = function(event){
                 if((this.querySelector('#kanban').clientWidth - window.innerWidth - event.target.scrollLeft) < 300){
-                    event.path[1].querySelector('.row_right').style.visibility = 'hidden';
+                    this.parentNode.querySelector('.row_right').style.visibility = 'hidden';
                 }else{
-                    event.path[1].querySelector('.row_right').style.visibility = 'visible';
+                    this.parentNode.querySelector('.row_right').style.visibility = 'visible';
                 }
             }
+            //Button to show/hide options
+            this.shadowRoot.querySelector('.show-option').onclick = function(event){
+                this.parentNode.querySelector('.option').style.visibility = (this.parentNode.querySelector('.option').style.visibility == 'visible')?'hidden':'visible';
+            }
+            var columnKanban = this.shadowRoot.querySelectorAll('.liste');
+            this.shadowRoot.querySelector('.option').onchange = function(event){
+                columnKanban.forEach((column, i) => {
+                    column.style.display = 'inline-block';
+                    if(!columns[i].writeable&&!this.querySelector('#version-before').checked) column.style.display = 'none';//tagrget before
+                    if(columns[i].state&&!this.querySelector('#version-current').checked) column.style.display = 'none';//tagrget current
+                    if(columns[i].writeable&&!columns[i].state&&!this.querySelector('#version-future').checked) column.style.display = 'none';//tagrget future
+                });
+            }
+
         };
 
         //modifie the content of the kanban

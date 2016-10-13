@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<svg width="17" height="17" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+ <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
+ <title>Fleche</title>
+ <g>
+  <title>Layer 1</title>
+  <ellipse stroke="#c0c0c0" id="svg_1" ry="4.5" rx="4.65" cy="8.9" cx="8.6" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="2" fill="none"/>
+  <line id="svg_2" y2="8.8" x2="3.85" y1="8.8" x1="1.05" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="2" stroke="#c0c0c0" fill="none"/>
+  <line id="svg_3" y2="8.899999" x2="16.050001" y1="8.899999" x1="13.250001" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="2" stroke="#c0c0c0" fill="none"/>
+  <line transform="rotate(90 8.849998474121096,14.59999942779541) " id="svg_5" y2="14.6" x2="10.250002" y1="14.6" x1="7.450002" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="2" stroke="#c0c0c0" fill="none"/>
+  <line id="svg_6" transform="rotate(90 8.44999694824219,3.1000003814697275) " y2="3.1" x2="9.85" y1="3.1" x1="7.05" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="2" stroke="#c0c0c0" fill="none"/>
+  <line id="svg_7" transform="rotate(45 12.849998474121103,12.900000572204588) " y2="12.9" x2="14.250002" y1="12.9" x1="11.450002" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="2" stroke="#c0c0c0" fill="none"/>
+  <line id="svg_8" transform="rotate(45 4.049999237060547,4.499997138977052) " y2="4.499998" x2="5.450002" y1="4.499998" x1="2.650002" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="2" stroke="#c0c0c0" fill="none"/>
+  <line id="svg_9" transform="rotate(-45 12.849998474121094,4.799997329711914) " y2="4.799998" x2="14.250002" y1="4.799998" x1="11.450002" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="2" stroke="#c0c0c0" fill="none"/>
+  <line id="svg_10" transform="rotate(-45 4.4499969482421795,13.300001144409178) " y2="13.300002" x2="5.85" y1="13.300002" x1="3.05" stroke-linecap="null" stroke-linejoin="null" stroke-dasharray="null" stroke-width="2" stroke="#c0c0c0" fill="none"/>
+ </g>
+</svg>
