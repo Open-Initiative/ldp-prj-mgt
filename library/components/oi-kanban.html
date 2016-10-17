@@ -306,7 +306,7 @@
                         });
                     }.bind(this));
                     rubrics.addEventListener("change", function(){
-                        this.querySelectorAll('oi-task').forEach(function(task){
+                        var tasks = Array.prototype.map.call(this.querySelectorAll('oi-task'), function(task){
                             task.setAttribute('style',(rubrics.value == '')?'display:block;':(task.dataset.parent == rubrics.value)?'display:block;':'display:none;');
                         });
                     }.bind(this));
