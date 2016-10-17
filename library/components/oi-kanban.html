@@ -12,6 +12,7 @@
     }
     h1, h3 , a , .option{
         color: #CCC;
+        margin-bottom: 0;
     }
     .board {
         width:2400px;
@@ -143,6 +144,7 @@
 </style>
 <div class="pageHeader">
     <h3 class="stitre"></h3>
+    <a href="./index.html">Accès à la liste de tâches</a><br>
     <img src="../../images/row-r.svg" alt="row right" class="row_right">
     <img src="../../images/option.svg" alt="option" class="show-option">
     <div class="option">
@@ -151,7 +153,6 @@
         <label><input type="checkbox" id="version-future" value="future" checked class="option-checkbox"> Versions future</label>
     </div>
 </div>
-<a href="./index.html">Accès à la liste de tâches</a><br>
 <div class="surface">
     <div class="pageContent">
         <div class="board">
@@ -302,6 +303,11 @@
                             subProject.descendants.forEach(function(subTask, index){
                                 this.appendChild(this.AppendOiTask(subTask['@id'], task['@id']));
                             }.bind(this));
+                        });
+                    }.bind(this));
+                    rubrics.addEventListener("change", function(){
+                        this.querySelectorAll('oi-task').forEach(function(task){
+                            task.setAttribute('style',(rubrics.value == '')?'display:block;':(task.dataset.parent == rubrics.value)?'display:block;':'display:none;');
                         });
                     }.bind(this));
                 } else {
