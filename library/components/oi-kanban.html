@@ -1,3 +1,4 @@
+
 <template id="task-head">
 <style scoped>
     *{
@@ -132,6 +133,12 @@
     }
     .option{
         visibility: hidden;
+    }
+    .rubrics{
+        background-color: #fc0;
+        border : none;
+        width: 250px;
+        color: white;
     }
 </style>
 <div class="pageHeader">
@@ -283,13 +290,39 @@
                 //creation of sub-title
                 this.setColumns(project.release_set, project.target);
                 this.shadowRoot.querySelector('.stitre').innerHTML = `Project : ${project.title} , Url : ${project['@id']}`;
-                project.descendants.forEach(function(task, index){
-                    var taskElt =  document.createElement('oi-task');
-                    taskElt.setAttribute("data-src",task['@id']);
-                    this.appendChild(taskElt);
-                }.bind(this));
+                //detection of sub-tasks
+                if (project['ldp:contains'].length < project['descendants'].length){
+                    var rubrics = document.createElement("select");
+                    rubrics.className = 'rubrics';
+                    this.shadowRoot.querySelector('.pageHeader').appendChild(rubrics);
+                    this.shadowRoot.querySelector('.rubrics').appendChild(this.AppendSelectInput('Choisir une rubrique',''));
+                    project['ldp:contains'].forEach(function(task){
+                        this.shadowRoot.querySelector('.rubrics').appendChild(this.AppendSelectInput(task.title, task['@id']));
+                        store.get(task['@id']).then(subProject=>{
+                            subProject.descendants.forEach(function(subTask, index){
+                                this.appendChild(this.AppendOiTask(subTask['@id'], task['@id']));
+                            }.bind(this));
+                        });
+                    }.bind(this));
+                } else {
+                    project.descendants.forEach(function(task, index){
+                        this.appendChild(this.AppendOiTask(task['@id'], project['@id']));
+                    }.bind(this));
+                }
             });
         };
+        taskListPrototype.AppendSelectInput = function(title, uri){
+          var rubric = document.createElement("option");
+          rubric.setAttribute('value',uri);
+          rubric.innerText = title;
+          return rubric;
+        }
+        taskListPrototype.AppendOiTask = function(uri, parent){
+            var taskElt =  document.createElement('oi-task');
+            taskElt.setAttribute("data-src",uri);
+            taskElt.setAttribute("data-parent",parent);
+            return taskElt;
+        }
         document.registerElement('oi-kanban',{prototype: taskListPrototype});
     })();
 </script>
