@@ -5,4 +5,23 @@ body {
     margin: 1vh 1vw;
     font-family: HelveticaNeue, arial, helvetica, clean, sans-serif;
     background: url("../images/bg.png") no-repeat top right;
+    transition: opacity ease-in 0.2s;
+}
+body[unresolved] {
+    opacity: 0;
+    display: block;
+    overflow: hidden;
+    position: relative;
+}
+.bgcolor {
+    background-color: #fc0;
+    color : #fff;
+}
+::shadow .bgcolor {
+    background-color: #fc0;
+    color : #fff;
+}
+b-sortable{
+    display: inline-block;
+    vertical-align: top;
 }

@@ -1,10 +1,4 @@
 <script type="text/javascript" src="http://cdn.happy-dev.fr/LDP-framework/ldpframework.js"></script>
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
-<!-- <script src="/library/jquery.polymer-1.0.js"></script>
-<script src="/library/jquery-ui.polymer-1.0.js"></script> -->
-<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 <script>
     (function(){
         var localDoc = document._currentScript.ownerDocument;
@@ -45,7 +39,7 @@
                 form.className = "from_edit_task";
                 form.setAttribute('style','display:none;');
                 var formNode = this.appendChild(form);
-                formNode.innerHTML = `<textarea name="title" class="titleForm" maxlength="100">${$(this).children('.title')[0].innerText}</textarea>
+                formNode.innerHTML = `<textarea name="title" class="titleForm" maxlength="100">${this.querySelector('.title').innerText}</textarea>
                 <input type="hidden" name="@id" value="${this.dataset.id}" class="idForm">
                 <select name="state" class="stateForm">
                 <option value="0" ${this.dataset.state==0?'selected':''}>Proposé</option>
@@ -54,41 +48,34 @@
                 <option value="3" ${this.dataset.state==3?'selected':''}>Livré</option>
                 <option value="4" ${this.dataset.state==4?'selected':''}>Validé</option>
                 </select>
+                <input type="hidden" name="target" value="${this.dataset.target}" class="targetForm">
                 <button type="submit"><img src="../../images/ok.svg" alt="submit" class="submit_form"></button>
                 <button type="reset"><img src="../../images/cancel.svg" alt="cancel" class="reset_form"></button>`;
-                //Permit add target change by appending this line :  <input type="text" name="target" value="${this.dataset.target}" class="targetForm">
 
                 //click to modifie a task
-                $(this).children('span').click(t => {
-                    console.log(t.toElement);
-                    $('oi-task form').hide();
-                    $(`oi-task .${t.target.className}Form`).show();
-                    $('oi-task span').attr('style',initialDisplay);
+                Array.prototype.forEach.call(this.querySelectorAll('span'), span => span.addEventListener('click', t => {
+                    Array.prototype.forEach.call(this.querySelectorAll('oi-task form'), formular => formular.setAttribute('style','display:none;'));
+                    this.querySelector(`oi-task .${t.target.className}Form`).setAttribute('style','display:block;');
+                    Array.prototype.forEach.call(this.querySelectorAll('oi-task span'), span => span.setAttribute('style',initialDisplay));
                     this.querySelector('form').setAttribute('style',initialDisplay);
-                    $(this).children('span').hide();
+                    Array.prototype.forEach.call(this.querySelectorAll('span'),span => span.setAttribute('style','display:none;'));
                     this.querySelector('.from_edit_task').addEventListener('submit', event =>{
                         event.preventDefault(); //bloc function submit as HTML
-                        var project = {"@context" : "http://owl.openinitiative.com/oicontext.jsonld", 'target' : {'@id' : ''}}
-                        JSON.parse(JSON.stringify($(formNode).serializeArray())).forEach(FormularEntry => {
-                            if(FormularEntry.name =='target'){
-                                project['target']['@id'] = FormularEntry.value;
-                            } else {
-                                project[FormularEntry.name] = FormularEntry.value;
-                            }
-                            if(FormularEntry.name =='title'){this.querySelector('.title').innerText = FormularEntry.value}
-                            console.log(FormularEntry);
-                        });
-                        console.log(project);
+                        var project = {"@context" : "http://owl.openinitiative.com/oicontext.jsonld",
+                            'title': event.target.querySelector('.titleForm').value,
+                            '@id' : event.target.querySelector('.idForm').value,
+                            'state' : event.target.querySelector('.stateForm').value,
+                            'target' : {'@id' : event.target.querySelector('.targetForm').value}}
                         store.save(project);
                         this.querySelector('form').setAttribute('style','display:none;');
-                        $(this).children('span').show();
-                    });
+                        Array.prototype.forEach.call(this.querySelectorAll('span'), span => span.setAttribute('style',initialDisplay));
+                    }, false);
                     this.querySelector('.reset_form').addEventListener('click', event =>{
-                        event.preventDefault(); //bloc function submit as HTML
+                        event.preventDefault(); //bloc function reset as HTML
                         this.querySelector('form').setAttribute('style','display:none;');
-                        $(this).children('span').show();
+                        Array.prototype.forEach.call(this.querySelectorAll('span'), span => span.setAttribute('style',initialDisplay));
                     });
-                });
+                }));
 
             });
         }
