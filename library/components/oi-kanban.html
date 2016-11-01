@@ -145,7 +145,8 @@
 <template id='template-column'>
     <span class="liste bgcolor">
         <h4></h4>
-        <ul class="listeContent" dropzone="move" ondrop="console.log(event);" ondragover="console.log(event);">
+        <!-- <ul class="listeContent" dropzone="move" ondrop="console.log(event);" ondragover="console.log(event);"> -->
+        <ul class="listeContent" dropzone="move" ondrop="console.log('ondrop');" ondragover="console.log('ondragover');">
             <content></content>
         </ul>
         <span class="show_form_task" data-form="${i}" style="display:none;">Ajouter une tâche</span>
@@ -192,7 +193,9 @@
         }
 
         taskListPrototype.updateTask = function(event){
+            console.log('updateTask');
             console.log(event);
+            // var html = event.dataTransfer.getData("text/html");
             var columnPositions = Array.prototype.map.call(this.shadowRoot.querySelectorAll(".liste"), list => list.offsetLeft);
             var colId = columnPositions.filter(x=>(event.clientX+this.shadowRoot.querySelector('.surface').scrollLeft)>x).length - 1;
             if(this.columns[colId].writeable){
@@ -222,12 +225,16 @@
             this.columns.forEach((column, i) => {
                 var columnElt = document.importNode(localDoc.querySelector('#template-column').content, true);
                 console.dir(columnElt);
-                columnElt.querySelector('content').addEventListener('dragend',function(e){
+                columnElt.querySelector('content').addEventListener('dragend', e => {
                     console.log(e.srcElement);//oi-task src
                     this.updateTask(e);
-                }.bind(this));
+                });
                 columnElt.querySelector('content').addEventListener('dragover',function(e){
                     //console.log(this);//content dest of drop
+                });
+                columnElt.querySelector('.listeContent').addEventListener('drop', e => {
+                    console.log('drop');//oi-task src
+                    //this.updateTask(e);
                 });
                 columnElt.querySelector('h4').innerText = column.name;
                 var filter = (column.target['@id']==target['@id'])?`[data-state=\'${column.state}\']`:``;
