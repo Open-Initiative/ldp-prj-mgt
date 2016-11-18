@@ -253,6 +253,17 @@
                 clone.querySelector(".kanban").appendChild(columnElt);
             });
             this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
+            var columnKanban = this.shadowRoot.querySelectorAll('.liste');
+            var columns = this.columns;
+            this.shadowRoot.querySelector('.option').onchange = function(event){
+                console.dir(columns);
+                columns.forEach((column, i) => {
+                    columnKanban[i].style.display = 'inline-block';
+                    if(!column.writeable&&!this.querySelector('#version-before').checked) columnKanban[i].style.display = 'none';//tagrget before
+                    if(column.state&&!this.querySelector('#version-current').checked) columnKanban[i].style.display = 'none';//tagrget current
+                    if(column.writeable&&!column.state&&!this.querySelector('#version-future').checked) columnKanban[i].style.display = 'none';//tagrget future
+                });
+            }
 
         }
 
