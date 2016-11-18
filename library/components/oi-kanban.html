@@ -229,7 +229,7 @@
                     console.log(e.srcElement);//oi-task src
                     this.updateTask(e);
                 });
-                columnElt.querySelector('content').addEventListener('dragover',function(e){
+                columnElt.querySelector('content').addEventListener('dragover',e => {
                     //console.log(this);//content dest of drop
                 });
                 columnElt.querySelector('.listeContent').addEventListener('drop', e => {

@@ -25,7 +25,7 @@
                 this.setAttribute("data-target", task.target? task.target['@id']:"");
                 this.setAttribute("data-state", task.state);
                 this.setAttribute("data-id", task['@id']);
-                var initialDisplay = (this.parentNode.localName == "oi-tasklist")?'display:inline-block;':'display:block;';
+                var initialDisplay = 'display:'+(this.parentNode.localName == "oi-tasklist")?'inline-block;':'block;';
                 //remove all child elements before add
                 while(this.firstChild) this.removeChild(this.firstChild);
                 if(this.parentNode.localName == "oi-tasklist"){
