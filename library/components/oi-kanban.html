@@ -146,7 +146,7 @@
     <span class="liste bgcolor">
         <h4></h4>
         <!-- <ul class="listeContent" dropzone="move" ondrop="console.log(event);" ondragover="console.log(event);"> -->
-        <ul class="listeContent" dropzone="move" ondrop="console.log('ondrop');" ondragover="console.log('ondragover');">
+        <ul class="listeContent" dropzone="move">
             <content></content>
         </ul>
         <span class="show_form_task" data-form="${i}" style="display:none;">Ajouter une tâche</span>
@@ -193,18 +193,17 @@
         }
 
         taskListPrototype.updateTask = function(event){
-            console.log('updateTask');
-            console.log(event);
-            // var html = event.dataTransfer.getData("text/html");
+            console.dir(event);
             var columnPositions = Array.prototype.map.call(this.shadowRoot.querySelectorAll(".liste"), list => list.offsetLeft);
             var colId = columnPositions.filter(x=>(event.clientX+this.shadowRoot.querySelector('.surface').scrollLeft)>x).length - 1;
             if(this.columns[colId].writeable){
-                var taskElt = event.toElement;
-                console.log(taskElt);
+                var taskElt = event.target.parentNode;
                 taskElt.dataset.target = this.columns[colId].target['@id'];
                 taskElt.dataset.state = this.columns[colId].state;
-                console.log(taskElt);
-                store.get(event.toElement.dataset.src).then(task => {
+                taskElt.dataset.src = event.dataTransfer.getData('text/plain');
+                console.log('taskElt=');
+                console.dir(taskElt);
+                store.get(taskElt.dataset.src).then(task => {
                     console.log(task);
                     console.log(this.columns[colId]);
                     store.save(Object.assign(task, this.columns[colId]))
@@ -224,18 +223,18 @@
             clone.querySelector('.pageContent').style.width = (this.columns.length * 260) + 'px';
             this.columns.forEach((column, i) => {
                 var columnElt = document.importNode(localDoc.querySelector('#template-column').content, true);
-                console.dir(columnElt);
-                columnElt.querySelector('content').addEventListener('dragend', e => {
-                    console.log(e.srcElement);//oi-task src
-                    this.updateTask(e);
-                });
-                columnElt.querySelector('content').addEventListener('dragover',e => {
-                    //console.log(this);//content dest of drop
-                });
+                // console.dir(columnElt);
+                // columnElt.querySelector('content').addEventListener('dragend', e => {
+                //     this.updateTask(e);
+                // },false);
+                columnElt.querySelector('.listeContent').addEventListener('dragover',e => {
+                    e.preventDefault();//Disable the interdiction of drop
+                },false);
                 columnElt.querySelector('.listeContent').addEventListener('drop', e => {
-                    console.log('drop');//oi-task src
-                    //this.updateTask(e);
-                });
+                    e.preventDefault();//Disable the interdiction of drop
+                    console.log(e.dataTransfer.getData('text/plain'));//oi-task src
+                    this.updateTask(e);
+                },false);
                 columnElt.querySelector('h4').innerText = column.name;
                 var filter = (column.target['@id']==target['@id'])?`[data-state=\'${column.state}\']`:``;
                 columnElt.querySelector('content').setAttribute('select',`[data-target=\'${column.target['@id']}\']${filter}`);
@@ -248,8 +247,6 @@
                     columnElt.querySelector('.form-add-task').addEventListener('reset', (event) =>
                         event.target.setAttribute('style','display:none;'));
                 }
-                columnElt.querySelector('ul').addEventListener("drop", function(){console.log("mise à jour de la tache")})
-
                 clone.querySelector(".kanban").appendChild(columnElt);
             });
             this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
@@ -310,7 +307,7 @@
             var taskElt = document.createElement('oi-task');
             taskElt.setAttribute("data-src",uri);
             taskElt.setAttribute("draggable",true);
-            taskElt.setAttribute("ondragstart","event.dataTransfer.setData('text/plain', 'contenu de ondragstart')");
+            taskElt.setAttribute("ondragstart","event.dataTransfer.setData('text/plain', '" + uri + "')");
             taskElt.setAttribute("data-parent",parent);
             this.appendChild(taskElt);
         }
