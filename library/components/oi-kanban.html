@@ -193,7 +193,6 @@
         }
 
         taskListPrototype.updateTask = function(event){
-            console.dir(event);
             var columnPositions = Array.prototype.map.call(this.shadowRoot.querySelectorAll(".liste"), list => list.offsetLeft);
             var colId = columnPositions.filter(x=>(event.clientX+this.shadowRoot.querySelector('.surface').scrollLeft)>x).length - 1;
             if(this.columns[colId].writeable){
@@ -201,11 +200,7 @@
                 taskElt.dataset.target = this.columns[colId].target['@id'];
                 taskElt.dataset.state = this.columns[colId].state;
                 taskElt.dataset.src = event.dataTransfer.getData('text/plain');
-                console.log('taskElt=');
-                console.dir(taskElt);
                 store.get(taskElt.dataset.src).then(task => {
-                    console.log(task);
-                    console.log(this.columns[colId]);
                     store.save(Object.assign(task, this.columns[colId]))
                 });
             } else {
@@ -223,16 +218,11 @@
             clone.querySelector('.pageContent').style.width = (this.columns.length * 260) + 'px';
             this.columns.forEach((column, i) => {
                 var columnElt = document.importNode(localDoc.querySelector('#template-column').content, true);
-                // console.dir(columnElt);
-                // columnElt.querySelector('content').addEventListener('dragend', e => {
-                //     this.updateTask(e);
-                // },false);
                 columnElt.querySelector('.listeContent').addEventListener('dragover',e => {
                     e.preventDefault();//Disable the interdiction of drop
                 },false);
                 columnElt.querySelector('.listeContent').addEventListener('drop', e => {
                     e.preventDefault();//Disable the interdiction of drop
-                    console.log(e.dataTransfer.getData('text/plain'));//oi-task src
                     this.updateTask(e);
                 },false);
                 columnElt.querySelector('h4').innerText = column.name;
@@ -253,7 +243,6 @@
             var columnKanban = this.shadowRoot.querySelectorAll('.liste');
             var columns = this.columns;
             this.shadowRoot.querySelector('.option').onchange = function(event){
-                console.dir(columns);
                 columns.forEach((column, i) => {
                     columnKanban[i].style.display = 'inline-block';
                     if(!column.writeable&&!this.querySelector('#version-before').checked) columnKanban[i].style.display = 'none';//tagrget before
