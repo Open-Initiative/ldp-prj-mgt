@@ -34,7 +34,7 @@
                 }
                 this.appendField('title', task.title);
                 this.appendField('target', task.target?task.target.name:"");
-                // this.appendField('author', task.author?task.author.fullName:"");
+                //create a hidden form to modify the task 
                 var form = document.createElement('form')
                 form.className = "from_edit_task";
                 form.setAttribute('style','display:none;');
@@ -52,7 +52,7 @@
                 <button type="submit"><img src="../../images/ok.svg" alt="submit" class="submit_form"></button>
                 <button type="reset"><img src="../../images/cancel.svg" alt="cancel" class="reset_form"></button>`;
 
-                //click to modifie a task
+                //flip flop to show/hide the form to modifie a task
                 Array.prototype.forEach.call(this.querySelectorAll('span'), span => span.addEventListener('click', t => {
                     Array.prototype.forEach.call(this.querySelectorAll('oi-task form'), formular => formular.setAttribute('style','display:none;'));
                     this.querySelector(`oi-task .${t.target.className}Form`).setAttribute('style','display:block;');

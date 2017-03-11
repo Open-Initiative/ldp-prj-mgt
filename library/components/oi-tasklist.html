@@ -124,8 +124,6 @@
                     this.createShadowRoot().appendChild(clone);
 
                     store.get(this.dataset.src).then(project=>{
-                        console.log(project);
-                        console.log(this.shadowRoot.children);
                         var content= '';
                         //reading of targets in this project
                         project.release_set.forEach(function(target, index){
@@ -160,11 +158,9 @@
                         this.shadowRoot.querySelector('.submitForm').addEventListener('click', c => {
                             event.preventDefault(); //bloc function submit as HTML
                             var newProject = {"@context" : "http://owl.openinitiative.com/oicontext.jsonld" , 'target' : {'@id' : ''}}
-                            console.log(this.shadowRoot.querySelector('.formAddTask'));
                             newProject.title = this.shadowRoot.querySelector('.titleForm').value;
                             newProject.target['@id'] = this.shadowRoot.querySelector('.targetForm').value;
                             newProject.state = this.shadowRoot.querySelector('.stateForm').value;
-                            console.dir(newProject);
                             store.save(newProject).then(project=>{
                                 // console.log(project['@graph'][0]['@id']);
                                 var newTask =  document.createElement('oi-task');
@@ -182,9 +178,9 @@
 
                         //detection of mouseUp in a field of the header to change the filter
                         tableHeader.addEventListener("keyup",function(){
-                            // initialise affichage à visible
-                            this.querySelectorAll('oi-task').forEach(elt => elt.style.display='inline-table');
-                            console.log(tableHeader.querySelector('#id').value);
+                            // show every tasks
+                            var razFilter = Array.prototype.map.call(this.querySelectorAll('oi-task'), elt => elt.style.display='inline-table');
+                            //hide the tasks which not match
                             // chxxx contient the string to search in the xxx column
                             var chid = tableHeader.querySelector('#id').value;
                             var chstate =tableHeader.querySelector('#state').value;
@@ -193,12 +189,12 @@
                             var chTarget = tableHeader.querySelector('#target').value.toUpperCase();
                             var chcomment = tableHeader.querySelector('#comment').value.toUpperCase();
                             // basexxx contient all the <span class="xxx">
-                            this.querySelectorAll('oi-task .id').forEach(elt =>{if(elt.innerHTML.indexOf(chid)==-1){elt.parentNode.style.display='none';}});
-                            this.querySelectorAll('oi-task .state').forEach(elt =>{if(elt.innerHTML.indexOf(chstate)==-1){elt.parentNode.style.display='none';}});
-                            this.querySelectorAll('oi-task .title').forEach(elt =>{if(elt.innerHTML.toUpperCase().indexOf(chtitle)==-1){elt.parentNode.style.display='none';}});
-                            this.querySelectorAll('oi-task .author').forEach(elt =>{if(elt.innerHTML.toUpperCase().indexOf(chauthor)==-1){elt.parentNode.style.display='none';}});
-                            this.querySelectorAll('oi-task .target').forEach(elt =>{if(elt.innerHTML.toUpperCase().indexOf(chTarget)==-1){elt.parentNode.style.display='none';}});
-                            this.querySelectorAll('oi-task .comment').forEach(elt =>{if(elt.innerHTML.toUpperCase().indexOf(chcomment)==-1){elt.parentNode.style.display='none';}});
+                            var idFilter = Array.prototype.map.call(this.querySelectorAll('oi-task .id'), elt =>{if(elt.innerHTML.indexOf(chid)==-1){elt.parentNode.style.display='none';}});
+                            var stateFilter = Array.prototype.map.call(this.querySelectorAll('oi-task .state'), elt =>{if(elt.innerHTML.indexOf(chstate)==-1){elt.parentNode.style.display='none';}});
+                            var titleFilter = Array.prototype.map.call(this.querySelectorAll('oi-task .title'), elt =>{if(elt.innerHTML.toUpperCase().indexOf(chtitle)==-1){elt.parentNode.style.display='none';}});
+                            var authorFilter = Array.prototype.map.call(this.querySelectorAll('oi-task .author'), elt =>{if(elt.innerHTML.toUpperCase().indexOf(chauthor)==-1){elt.parentNode.style.display='none';}});
+                            var targetFilter = Array.prototype.map.call(this.querySelectorAll('oi-task .target'), elt =>{if(elt.innerHTML.toUpperCase().indexOf(chTarget)==-1){elt.parentNode.style.display='none';}});
+                            var commentFilter = Array.prototype.map.call(this.querySelectorAll('oi-task .comment'), elt =>{if(elt.innerHTML.toUpperCase().indexOf(chcomment)==-1){elt.parentNode.style.display='none';}});
                         }.bind(this));
 
                     });

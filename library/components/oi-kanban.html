@@ -145,7 +145,6 @@
 <template id='template-column'>
     <span class="liste bgcolor">
         <h4></h4>
-        <!-- <ul class="listeContent" dropzone="move" ondrop="console.log(event);" ondragover="console.log(event);"> -->
         <ul class="listeContent" dropzone="move">
             <content></content>
         </ul>
@@ -192,6 +191,7 @@
             return past.concat(current, future);
         }
 
+        //calulate the position of the task after a drop
         taskListPrototype.updateTask = function(event){
             var columnPositions = Array.prototype.map.call(this.shadowRoot.querySelectorAll(".liste"), list => list.offsetLeft);
             var colId = columnPositions.filter(x=>(event.clientX+this.shadowRoot.querySelector('.surface').scrollLeft)>x).length - 1;
@@ -218,16 +218,17 @@
             clone.querySelector('.pageContent').style.width = (this.columns.length * 260) + 'px';
             this.columns.forEach((column, i) => {
                 var columnElt = document.importNode(localDoc.querySelector('#template-column').content, true);
-                columnElt.querySelector('.listeContent').addEventListener('dragover',e => {
-                    e.preventDefault();//Disable the interdiction of drop
+                columnElt.querySelector('.listeContent').addEventListener('dragover',event => {
+                    event.preventDefault();//Disable the interdiction of drop
                 },false);
-                columnElt.querySelector('.listeContent').addEventListener('drop', e => {
-                    e.preventDefault();//Disable the interdiction of drop
-                    this.updateTask(e);
+                columnElt.querySelector('.listeContent').addEventListener('drop', event => {
+                    event.preventDefault();//Disable the interdiction of drop
+                    this.updateTask(event);
                 },false);
                 columnElt.querySelector('h4').innerText = column.name;
                 var filter = (column.target['@id']==target['@id'])?`[data-state=\'${column.state}\']`:``;
                 columnElt.querySelector('content').setAttribute('select',`[data-target=\'${column.target['@id']}\']${filter}`);
+                //allow the formular to add task if target is not closed
                 if(column.writeable){
                     columnElt.querySelector('.show_form_task').setAttribute('style','display:block;');
                     columnElt.querySelector('.show_form_task').addEventListener('click', (event) => {
@@ -239,7 +240,7 @@
                 }
                 clone.querySelector(".kanban").appendChild(columnElt);
             });
-            this.createShadowRoot().appendChild(clone); //disabled shadow root to get jquery compatibility
+            this.createShadowRoot().appendChild(clone);
             var columnKanban = this.shadowRoot.querySelectorAll('.liste');
             var columns = this.columns;
             this.shadowRoot.querySelector('.option').onchange = function(event){
@@ -280,13 +281,14 @@
                         });
                     }.bind(this));
 
-                    // mettre ici la gestion du drop sur le b-sortable
+                    // Listener to detecte the change of category
                     categorySelect.addEventListener("change", function(){
                         var tasks = Array.prototype.forEach.call(this.querySelectorAll('oi-task'), function(taskElt){
                             taskElt.classList.toggle('hidden',categorySelect.value != '' && taskElt.dataset.parent != categorySelect.value);
                         });
                     }.bind(this));
                 } else {
+                    //If no subtask exist
                     project.descendants.forEach(task => this.AppendOiTask(task['@id'], project['@id']));
                 }
             });
